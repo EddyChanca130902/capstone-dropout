@@ -165,14 +165,25 @@ select:focus {
 .tabla td {
   text-align: left;
   padding: 0.7rem 0.75rem;
-  border-bottom: 1px solid var(--line);
+  /* El borde va en la fila, no en cada celda: si va en la celda, las lineas
+     horizontales quedan a distinta altura segun el alto de cada columna. */
+  border-bottom: 0;
 }
 
-.tabla th {
+.tabla thead th {
   font-size: 0.74rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+
+.tabla tbody tr {
+  border-bottom: 1px solid var(--line);
+}
+
+.tabla tbody tr:last-child {
+  border-bottom: 0;
 }
 
 .tabla tbody tr:hover {
