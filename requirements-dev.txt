@@ -1,0 +1,15 @@
+# --- Testing ---
+pytest==9.1.1
+pytest-asyncio==1.4.0
+httpx==0.28.1
+
+# --- Notebooks y analisis ---
+jupyterlab>=4
+notebook>=7
+ipykernel>=6
+shap==0.51.0
+seaborn==0.13.2
+openpyxl==3.1.5
+
+# --- Opcional: verificacion de modelos firmados con JWT de Supabase ---
+argon2-cffi==25.1.0

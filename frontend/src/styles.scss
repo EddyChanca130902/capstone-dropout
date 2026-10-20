@@ -1,0 +1,180 @@
+/* ===== AlertaTemprana · estilos globales ===== */
+:root {
+  --ink: #182b3a;
+  --muted: #667887;
+  --brand: #176b72;
+  --brand-dark: #10545a;
+  --brand-soft: #e6f3f1;
+  --line: #e2e9ec;
+  --canvas: #f4f7f8;
+  --surface: #ffffff;
+  --risk-high: #bd4e45;
+  --risk-medium: #c48726;
+  --risk-low: #39816a;
+  --shadow: 0 5px 20px rgba(24, 43, 58, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.9rem;
+}
+h2 {
+  font-size: 1.25rem;
+}
+
+p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--brand);
+}
+
+/* --- Botones --- */
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 11px;
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+  padding: 0.7rem 1.15rem;
+  transition: 0.18s ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+button.secundario {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+button.secundario:hover:not(:disabled) {
+  background: var(--brand-soft);
+  border-color: var(--brand-soft);
+  color: var(--brand-dark);
+}
+
+button.peligro {
+  background: var(--risk-high);
+  border-color: var(--risk-high);
+}
+
+/* --- Formularios --- */
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 0.62rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  margin-bottom: 0.9rem;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--brand-soft);
+  border-color: var(--brand);
+}
+
+/* --- Utilidades --- */
+.tarjeta {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.25rem 1.4rem;
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  color: var(--brand);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.error {
+  background: #fdecea;
+  color: #8c3129;
+  border: 1px solid #f3c5c0;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.exito {
+  background: #e7f4ec;
+  color: #1f6b47;
+  border: 1px solid #bfe0cd;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.tabla th,
+.tabla td {
+  text-align: left;
+  padding: 0.7rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.tabla th {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.tabla tbody tr:hover {
+  background: #fafcfc;
+}

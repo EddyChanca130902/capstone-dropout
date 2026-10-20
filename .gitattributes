@@ -1,0 +1,15 @@
+# Normaliza los finales de linea: LF en el repositorio (CI en Linux, editor en Windows).
+* text=auto eol=lf
+
+# Binarios que no deben transformarse
+*.png binary
+*.jpg binary
+*.ico binary
+*.xlsx binary
+*.joblib binary
+*.db binary
+
+# PowerShell necesita CRLF en Windows
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf

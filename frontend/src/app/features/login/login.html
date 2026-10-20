@@ -1,0 +1,33 @@
+<div class="pantalla">
+  <section class="presentacion">
+    <div class="icono">🎓</div>
+    <div class="kicker">Alerta temprana · acompañamiento académico</div>
+    <h1>Una alerta a tiempo<br />puede cambiarlo todo.</h1>
+    <p>
+      Identifica señales de riesgo académico y facilita un acompañamiento oportuno para cada
+      estudiante.
+    </p>
+  </section>
+
+  <section class="formulario tarjeta">
+    <div class="eyebrow">Plataforma de seguimiento</div>
+    <h2>Bienvenido de nuevo</h2>
+    <p>Inicia sesión para acceder al espacio de evaluación.</p>
+
+    @if (error()) {
+      <div class="error">{{ error() }}</div>
+    }
+
+    <form [formGroup]="formulario" (ngSubmit)="entrar()">
+      <label for="email">Correo institucional</label>
+      <input id="email" type="email" formControlName="email" placeholder="orientador@universidad.pe" />
+
+      <label for="password">Contraseña</label>
+      <input id="password" type="password" formControlName="password" placeholder="••••••••" />
+
+      <button type="submit" [disabled]="cargando()">
+        {{ cargando() ? 'Ingresando…' : 'Ingresar' }}
+      </button>
+    </form>
+  </section>
+</div>

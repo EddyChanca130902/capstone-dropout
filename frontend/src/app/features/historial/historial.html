@@ -1,0 +1,80 @@
+<h1>📋 Historial de Evaluaciones</h1>
+<p class="intro">Consulta y corrige las evaluaciones registradas.</p>
+
+<div class="filtros">
+  <div>
+    <label for="area">Área de estudios</label>
+    <select id="area" [(ngModel)]="filtroArea" (change)="cargar()">
+      <option value="">Todas las áreas</option>
+      @for (area of areas; track area) {
+        <option [value]="area">{{ area }}</option>
+      }
+    </select>
+  </div>
+  <div>
+    <label for="nivel">Nivel de riesgo</label>
+    <select id="nivel" [(ngModel)]="filtroNivel" (change)="cargar()">
+      <option value="">Todos los niveles</option>
+      <option value="ALTO">Alto</option>
+      <option value="MEDIO">Medio</option>
+      <option value="BAJO">Bajo</option>
+    </select>
+  </div>
+</div>
+
+@if (aviso()) {
+  <div class="exito">{{ aviso() }}</div>
+}
+@if (error()) {
+  <div class="error">{{ error() }}</div>
+}
+
+<section class="tarjeta">
+  @if (cargando()) {
+    <p>Cargando evaluaciones…</p>
+  } @else if (filas().length === 0) {
+    <p>No hay evaluaciones registradas todavía.</p>
+  } @else {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>DNI</th>
+          <th>Estudiante</th>
+          <th>Área</th>
+          <th>Probabilidad</th>
+          <th>Nivel</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (fila of filas(); track fila.id) {
+          <tr>
+            <td>{{ formatoFecha(fila.creado_en) }}</td>
+            <td>{{ fila.dni }}</td>
+            <td>{{ fila.nombre }}</td>
+            <td>{{ fila.area_estudios }}</td>
+            <td>{{ fila.probabilidad * 100 | number: '1.1-1' }}%</td>
+            <td><app-risk-badge [nivel]="fila.nivel" /></td>
+            <td class="acciones">
+              <select
+                [ngModel]="fila.nivel"
+                (ngModelChange)="corregir(fila, $event)"
+                [name]="'nivel-' + fila.id"
+              >
+                <option value="BAJO">BAJO</option>
+                <option value="MEDIO">MEDIO</option>
+                <option value="ALTO">ALTO</option>
+              </select>
+              <button class="peligro" (click)="eliminar(fila.id)">Eliminar</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <p class="nota">
+      Los datos académicos de entrada no se guardan en el historial. Si cambias la probabilidad o el
+      nivel, el modelo no vuelve a calcular el resultado.
+    </p>
+  }
+</section>

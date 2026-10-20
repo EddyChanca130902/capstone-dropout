@@ -1,0 +1,45 @@
+# Entorno virtual
+dropout-env/
+venv/
+.venv/
+
+# Secretos (NUNCA versionar)
+.env
+.env.*
+!.env.example
+
+# Datos descartados (Peru): se conservan en local, no se versionan
+data/_descartado_peru/
+
+# Datos locales de la aplicacion
+data/sistema_orientacion.db
+data/sistema_orientacion.db-journal
+*.db-wal
+*.db-shm
+
+# Modelos pesados regenerables (se reconstruyen con notebooks/02_modeling.ipynb)
+models/baselines/baseline_random_forest.joblib
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.mypy_cache/
+.ruff_cache/
+.venv/
+
+# Entornos
+.vscode/
+.idea/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Builds
+dist/
+build/
+frontend/dist/
+frontend/.angular/

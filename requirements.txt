@@ -1,0 +1,20 @@
+# --- Nucleo de datos y modelo (versiones pinneadas: el .joblib no es portable) ---
+pandas==3.0.6
+numpy==2.4.6
+scikit-learn==1.9.1
+xgboost==3.2.0
+joblib==1.6.0
+matplotlib==3.11.2
+
+# --- API (FastAPI) ---
+fastapi==0.156.0
+uvicorn[standard]==0.54.0
+pydantic==2.14.1
+pydantic-settings==2.16.1
+python-dotenv==1.2.4
+PyJWT==2.15.1
+cryptography==50.0.2
+supabase==2.33.0
+
+# --- Dashboard legacy en Streamlit (opcional, ver README) ---
+streamlit==1.66.0

@@ -1,0 +1,92 @@
+.intro {
+  margin-bottom: 1.1rem;
+}
+
+.progreso {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.barra {
+  flex: 1;
+  height: 7px;
+  background: #e7edee;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.avance {
+  height: 100%;
+  background: var(--brand);
+  transition: width 0.3s ease;
+}
+
+.sub {
+  margin-bottom: 1.2rem;
+  font-size: 0.9rem;
+}
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0 1rem;
+}
+
+.ancho {
+  grid-column: 1 / -1;
+}
+
+.semestres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.6rem;
+}
+
+.semestres h3 {
+  font-size: 0.95rem;
+  color: var(--brand);
+  margin-bottom: 0.6rem;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.resultado {
+  margin-top: 1.2rem;
+  display: flex;
+  gap: 1.3rem;
+  align-items: center;
+  border-left: 4px solid var(--brand);
+}
+
+.simbolo {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.detalle p {
+  margin: 0.15rem 0 0.6rem;
+}
+
+.probabilidad {
+  font-size: 2.3rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.consejo {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.resultado button {
+  margin-top: 0.6rem;
+  margin-right: 0.5rem;
+}

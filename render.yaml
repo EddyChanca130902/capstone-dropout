@@ -1,0 +1,26 @@
+# Blueprint para desplegar la API en Render (https://render.com).
+# El frontend va en Vercel (frontend/vercel.json).
+services:
+  - type: web
+    name: alertatemprana-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: API_ENV
+        value: production
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      # URL del frontend en Vercel (CORS)
+      - key: CORS_ORIGINS
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: JWT_LEEWAY_SECONDS
+        value: "300"
