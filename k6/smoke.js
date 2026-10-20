@@ -8,13 +8,19 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { API, BASE_URL, estudianteAleatorio, iniciarSesion } from './config.js';
 
+// Umbrales parametrizables: en local la API responde en ~3 ms; desplegada en
+// otra region la latencia la domina la red (250-500 ms).
+//   k6 run -e UMBRAL_PREDICT_MS=1500 -e UMBRAL_EVAL_MS=3000 k6/smoke.js
+const UMBRAL_PREDICT_MS = Number(__ENV.UMBRAL_PREDICT_MS || 300);
+const UMBRAL_EVAL_MS = Number(__ENV.UMBRAL_EVAL_MS || 2000);
+
 export const options = {
   vus: 1,
   duration: '30s',
   thresholds: {
     http_req_failed: ['rate<0.05'],
-    'http_req_duration{endpoint:predict}': ['p(95)<300'],
-    'http_req_duration{endpoint:evaluaciones}': ['p(95)<2000'],
+    'http_req_duration{endpoint:predict}': [`p(95)<${UMBRAL_PREDICT_MS}`],
+    'http_req_duration{endpoint:evaluaciones}': [`p(95)<${UMBRAL_EVAL_MS}`],
     checks: ['rate>0.95'],
   },
 };

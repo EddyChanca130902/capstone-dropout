@@ -19,7 +19,11 @@ export const options = {
   ],
   thresholds: {
     http_req_failed: ['rate<0.01'],
-    http_req_duration: ['p(95)<250', 'p(99)<800'],
+    // 250 ms en local; con la API en otra region sube a 1500 ms.
+    http_req_duration: [
+      `p(95)<${Number(__ENV.UMBRAL_PREDICT_MS || 250)}`,
+      `p(99)<${Number(__ENV.UMBRAL_P99_MS || 800)}`,
+    ],
     checks: ['rate>0.99'],
     'errores_validacion': ['count==0'],
   },

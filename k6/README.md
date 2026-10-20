@@ -58,3 +58,26 @@ equipo). Si el cuello de botella es la base de datos, las palancas son:
 2. Mover el resumen del panel a una vista SQL / RPC en vez de agregarlo en Python.
 3. Cachear el resumen del panel con un TTL corto.
 4. Desplegar la API en la misma region que el proyecto de Supabase.
+
+### Latencia segun donde este la API
+
+Los umbrales por defecto (`p(95)<300 ms`) estan calibrados para la API **en local**.
+Si apuntas a una API desplegada en otra region, la latencia la domina la red
+(250-500 ms desde Peru hasta Oregon) y hay que relajar el umbral:
+
+```powershell
+$env:BASE_URL = "https://alertatemprana-api.onrender.com"
+$env:UMBRAL_PREDICT_MS = "1500"
+$env:UMBRAL_EVAL_MS = "3000"
+k6 run k6/smoke.js
+```
+
+Medido contra la API desplegada en Render (Oregon) desde Peru:
+
+| Endpoint | p95 | Nota |
+|---|---|---|
+| `/api/v1/predict` | 525 ms | la inferencia en servidor es de **0.97 ms**: el resto es red |
+| `/api/v1/evaluaciones` | 1.33 s | ida y vuelta a Supabase |
+
+Las palancas para bajarla: mover el proyecto de Supabase a la region mas cercana,
+desplegar la API en esa misma region, y cachear el resumen del panel.
