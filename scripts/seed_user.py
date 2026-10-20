@@ -29,11 +29,16 @@ def leer_env(path: Path) -> dict[str, str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Crea un usuario en Supabase Auth")
+    parser = argparse.ArgumentParser(description="Crea o actualiza un usuario en Supabase Auth")
     parser.add_argument("--email", required=True)
     parser.add_argument("--password", required=True)
     parser.add_argument("--nombre", default="Orientador")
     parser.add_argument("--rol", default="orientador")
+    parser.add_argument(
+        "--actualizar",
+        action="store_true",
+        help="Si el usuario ya existe, cambia su contrasena en vez de salir.",
+    )
     args = parser.parse_args()
 
     env = leer_env(ROOT / ".env")
@@ -57,14 +62,40 @@ def main() -> int:
 
     with httpx.Client(timeout=30) as cliente:
         respuesta = cliente.post(f"{url}/auth/v1/admin/users", json=payload, headers=headers)
-        if respuesta.status_code == 422 and "already" in respuesta.text.lower():
-            print(f"[i] El usuario {args.email} ya existe.")
+        if respuesta.status_code < 300:
+            cuerpo = respuesta.json()
+            print(f"[OK] Usuario creado: {cuerpo.get('email')} (id={cuerpo.get('id')})")
+            print(f"     Contrasena: {args.password}")
             return 0
-        if respuesta.status_code >= 300:
-            print(f"[X] {respuesta.status_code}: {respuesta.text[:400]}")
+
+        texto = respuesta.text
+        ya_existe = respuesta.status_code == 422 and "already" in texto.lower()
+        if not ya_existe:
+            print(f"[X] {respuesta.status_code}: {texto[:400]}")
             return 1
-        cuerpo = respuesta.json()
-        print(f"[OK] Usuario creado: {cuerpo.get('email')} (id={cuerpo.get('id')})")
+
+        if not args.actualizar:
+            print(f"[i] El usuario {args.email} ya existe.")
+            print("    Usa --actualizar para cambiar su contrasena.")
+            return 0
+
+        # Localizar el usuario y actualizar su contrasena.
+        listado = cliente.get(
+            f"{url}/auth/v1/admin/users", params={"page": 1, "per_page": 200}, headers=headers
+        ).json().get("users", [])
+        objetivo = next((u for u in listado if u.get("email") == args.email), None)
+        if objetivo is None:
+            print(f"[X] No se encontro {args.email} en auth.users")
+            return 1
+        actualizacion = cliente.put(
+            f"{url}/auth/v1/admin/users/{objetivo['id']}",
+            json={"password": args.password, "email_confirm": True, "user_metadata": payload["user_metadata"]},
+            headers=headers,
+        )
+        if actualizacion.status_code >= 300:
+            print(f"[X] {actualizacion.status_code}: {actualizacion.text[:300]}")
+            return 1
+        print(f"[OK] Contrasena actualizada para {args.email}")
         print(f"     Contrasena: {args.password}")
         return 0
 

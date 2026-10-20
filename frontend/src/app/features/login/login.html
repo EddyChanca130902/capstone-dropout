@@ -15,15 +15,36 @@
     <p>Inicia sesión para acceder al espacio de evaluación.</p>
 
     @if (error()) {
-      <div class="error">{{ error() }}</div>
+      <div class="error">
+        {{ error() }}
+        @if (detalle()) {
+          <small>{{ detalle() }}</small>
+        }
+      </div>
     }
 
     <form [formGroup]="formulario" (ngSubmit)="entrar()">
       <label for="email">Correo institucional</label>
-      <input id="email" type="email" formControlName="email" placeholder="orientador@universidad.pe" />
+      <input id="email" type="email" formControlName="email" placeholder="orientador@alertatemprana.pe" autocomplete="username" />
 
       <label for="password">Contraseña</label>
-      <input id="password" type="password" formControlName="password" placeholder="••••••••" />
+      <div class="campo-clave">
+        <input
+          id="password"
+          [type]="mostrarClave() ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+        />
+        <button
+          type="button"
+          class="ver"
+          (click)="mostrarClave.set(!mostrarClave())"
+          [attr.aria-label]="mostrarClave() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+        >
+          {{ mostrarClave() ? '🙈' : '👁' }}
+        </button>
+      </div>
 
       <button type="submit" [disabled]="cargando()">
         {{ cargando() ? 'Ingresando…' : 'Ingresar' }}

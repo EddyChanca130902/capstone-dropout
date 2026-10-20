@@ -59,6 +59,47 @@
   margin-top: 0.3rem;
 }
 
+.error {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.error small {
+  font-size: 0.78rem;
+  opacity: 0.8;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  word-break: break-word;
+}
+
+.campo-clave {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.campo-clave input {
+  flex: 1;
+  margin-bottom: 0.9rem;
+}
+
+.campo-clave .ver {
+  padding: 0.5rem 0.7rem;
+  margin-bottom: 0.9rem;
+  background: #fff;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.campo-clave .ver:hover:not(:disabled) {
+  background: var(--brand-soft);
+  border-color: var(--brand-soft);
+  color: var(--brand-dark);
+}
+
 @media (max-width: 900px) {
   .pantalla {
     grid-template-columns: 1fr;
