@@ -22,6 +22,11 @@ El script `scripts/configure-api-url.mjs` escribe esa URL en
 `src/environments/environment.ts` antes de compilar. En Vercel se define la
 variable de entorno `API_URL` en el panel del proyecto.
 
+> Ojo: `npm run build` reescribe `src/environments/environment.ts` con la URL
+> configurada. Si haces un build local sin `API_URL`, ese archivo quedara
+> apuntando a `http://localhost:8000/api/v1` y aparecera como modificado en
+> git (es esperado: el build de Vercel hace lo mismo).
+
 ## Despliegue en Vercel
 
 - **Root Directory**: `frontend`
