@@ -24,3 +24,6 @@ services:
         sync: false
       - key: JWT_LEEWAY_SECONDS
         value: "300"
+      # Previsualizaciones de Vercel (cada una genera una URL distinta).
+      - key: CORS_ORIGIN_REGEX
+        value: "https://.*\.vercel\.app"

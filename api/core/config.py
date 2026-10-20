@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Annotated
 
 from pydantic import AliasChoices, Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -36,7 +37,15 @@ class Settings(BaseSettings):
 
     # --- API ---
     api_env: str = "development"
-    cors_origins: list[str] = ["http://localhost:4200", "http://localhost:8501"]
+    # `NoDecode` es imprescindible: sin el, pydantic-settings intenta parsear
+    # esta variable como JSON y falla al arrancar con "a.com,b.com".
+    cors_origins: Annotated[list[str], NoDecode] = [
+        "http://localhost:4200",
+        "http://localhost:8501",
+    ]
+    # Expresion regular para origenes adicionales (previsualizaciones de Vercel:
+    # https://capstone-dropout-abc123.vercel.app). Se evalua con `fullmatch`.
+    cors_origin_regex: str | None = None
 
     # --- Modelo ---
     model_path: Path = ROOT / "models" / "modelo_final.joblib"
@@ -53,7 +62,8 @@ class Settings(BaseSettings):
     @classmethod
     def _partir_origenes(cls, valor):
         if isinstance(valor, str):
-            return [o.strip() for o in valor.split(",") if o.strip()]
+            origenes = [o.strip().rstrip("/") for o in valor.split(",") if o.strip()]
+            return origenes or ["http://localhost:4200"]
         return valor
 
     @property

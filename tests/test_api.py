@@ -144,6 +144,54 @@ def test_token_invalido_es_rechazado(cliente: TestClient):
 
 
 # --------------------------------------------------------------------------- #
+# CORS
+# --------------------------------------------------------------------------- #
+def test_cors_permite_los_origenes_configurados():
+    """La variable CORS_ORIGINS llega como texto separado por comas.
+
+    Sin `NoDecode`, pydantic-settings intenta parsearla como JSON y la API
+    no arranca: este test blinda ese caso.
+    """
+    from api.core.config import Settings
+
+    config = Settings(cors_origins="https://a.vercel.app, https://b.vercel.app/")
+    assert config.cors_origins == ["https://a.vercel.app", "https://b.vercel.app"]
+
+
+def test_cors_responde_al_origin_permitido_y_lo_bloquea_a_otros(monkeypatch):
+    import api.core.config as modulo_config
+    from fastapi.testclient import TestClient
+
+    from api.main import crear_app
+
+    monkeypatch.setenv("CORS_ORIGINS", "https://capstone-dropout.vercel.app")
+    monkeypatch.setenv("CORS_ORIGIN_REGEX", r"https://.*\.vercel\.app")
+    modulo_config.obtener_config.cache_clear()
+    try:
+        cliente = TestClient(crear_app())
+
+        permitido = cliente.get(
+            "/api/v1", headers={"Origin": "https://capstone-dropout.vercel.app"}
+        )
+        assert permitido.headers.get("access-control-allow-origin") == (
+            "https://capstone-dropout.vercel.app"
+        )
+
+        # Previsualizacion de Vercel: permitida por la expresion regular.
+        previsualizacion = cliente.get(
+            "/api/v1", headers={"Origin": "https://capstone-dropout-abc123.vercel.app"}
+        )
+        assert previsualizacion.headers.get("access-control-allow-origin") == (
+            "https://capstone-dropout-abc123.vercel.app"
+        )
+
+        prohibido = cliente.get("/api/v1", headers={"Origin": "https://sitio-malicioso.com"})
+        assert "access-control-allow-origin" not in prohibido.headers
+    finally:
+        modulo_config.obtener_config.cache_clear()
+
+
+# --------------------------------------------------------------------------- #
 # Integracion (requiere Supabase configurado)
 # --------------------------------------------------------------------------- #
 def _credenciales() -> tuple[str, str] | None:
