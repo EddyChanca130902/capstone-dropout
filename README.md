@@ -11,6 +11,9 @@ XGBoost (modelo) · k6 (pruebas de carga) · pytest + Vitest (pruebas unitarias)
 > (comparar predicciones, trabajar sin conexión). El producto vigente es
 > Angular + FastAPI + Supabase.
 
+> **Demo en linea**
+> Frontend: https://capstone-dropout.vercel.app ? API: https://alertatemprana-api.onrender.com/docs
+
 ---
 
 ## 1. Puesta en marcha
