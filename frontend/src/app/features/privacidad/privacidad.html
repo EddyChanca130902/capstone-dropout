@@ -1,0 +1,53 @@
+<div class="pagina">
+  <header class="cabecera">
+    <a routerLink="/panel" class="volver">
+      <app-icon nombre="izquierda" [size]="16" /> Volver al panel
+    </a>
+    <div class="eyebrow">Transparencia y protección de datos</div>
+    <h1>Política de Privacidad</h1>
+    <p class="intro">
+      Qué datos registra AlertaTemprana, por qué se registran, quién puede verlos y cómo se
+      protegen. Última actualización: {{ actualizado }}.
+    </p>
+  </header>
+
+  <div class="aviso">
+    <app-icon nombre="info" [size]="18" />
+    <p>
+      AlertaTemprana es una <b>herramienta de apoyo</b> al orientador. La probabilidad que
+      muestra es una estimación estadística: no sustituye el criterio profesional ni constituye
+      una decisión automática sobre el estudiante.
+    </p>
+  </div>
+
+  <div class="contenido">
+    @for (seccion of secciones; track seccion.titulo) {
+      <section class="bloque">
+        <h2>
+          <span class="icono"><app-icon [nombre]="seccion.icono" [size]="18" /></span>
+          {{ seccion.titulo }}
+        </h2>
+        @for (parrafo of seccion.contenido; track $index) {
+          <p>{{ parrafo }}</p>
+        }
+        @if (seccion.puntos) {
+          <ul>
+            @for (punto of seccion.puntos; track punto) {
+              <li>
+                <app-icon nombre="check" [size]="15" />
+                <span>{{ punto }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  </div>
+
+  <footer class="pie">
+    <p>
+      ¿Dudas o solicitudes sobre esta política? Dirígete a la unidad de orientación y bienestar
+      estudiantil de tu institución.
+    </p>
+  </footer>
+</div>

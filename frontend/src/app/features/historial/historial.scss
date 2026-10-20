@@ -1,13 +1,58 @@
+.cabecera {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+
+.cabecera h1 {
+  margin-bottom: 0.25rem;
+}
+
 .intro {
-  margin-bottom: 1.2rem;
+  font-size: 0.94rem;
+}
+
+.contador {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.28rem 0.75rem;
 }
 
 .filtros {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
   gap: 0 1rem;
-  margin-bottom: 1.2rem;
-  max-width: 620px;
+  margin-bottom: 1.1rem;
+  max-width: 660px;
+  align-items: end;
+}
+
+.filtros label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.filtros label app-icon {
+  color: var(--muted);
+}
+
+.limpiar {
+  padding-bottom: 0.9rem;
+}
+
+.limpiar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.84rem;
 }
 
 .acciones {
@@ -21,15 +66,92 @@
   margin-bottom: 0;
   padding: 0.35rem 0.5rem;
   font-size: 0.85rem;
+  border-radius: 8px;
 }
 
-.acciones button {
-  padding: 0.35rem 0.7rem;
-  font-size: 0.82rem;
+.icono-boton {
+  padding: 0.4rem 0.55rem;
+  display: inline-grid;
+  place-items: center;
+  line-height: 0;
+}
+
+.editando {
+  opacity: 0.6;
+}
+
+.fecha {
+  color: var(--muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.nombre {
+  font-weight: 600;
+}
+
+.probabilidad {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
 }
 
 .nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
   margin-top: 1rem;
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   color: var(--muted);
+}
+
+.nota app-icon {
+  color: var(--muted);
+  margin-top: 0.12rem;
+  flex: none;
+}
+
+.estado-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+  padding: 2.4rem 1.5rem;
+}
+
+.estado-error app-icon {
+  color: var(--risk-high);
+  margin-bottom: 0.4rem;
+}
+
+.estado-error h3 {
+  margin: 0;
+}
+
+.estado-error button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+}
+
+.centro {
+  display: flex;
+  justify-content: center;
+  margin-top: -1.2rem;
+}
+
+/* --- Esqueletos --- */
+.cabecera-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.fila-skeleton {
+  display: grid;
+  grid-template-columns: 110px 80px 130px 130px 60px 90px 150px;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
 }

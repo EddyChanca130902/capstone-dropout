@@ -1,25 +1,40 @@
 <div class="layout">
   <aside class="sidebar">
     <div class="marca">
-      <div class="logo">🎓</div>
-      <div>
+      <div class="logo"><app-icon nombre="birrete" [size]="22" /></div>
+      <div class="textos">
         <div class="titulo">AlertaTemprana</div>
         <div class="subtitulo">Seguimiento académico</div>
       </div>
     </div>
 
-    <div class="bloque">
+    <nav class="navegacion">
       <div class="etiqueta">Espacio de trabajo</div>
       @for (enlace of enlaces; track enlace.ruta) {
         <a class="enlace" [routerLink]="enlace.ruta" routerLinkActive="activo">
-          <span>{{ enlace.icono }}</span>{{ enlace.titulo }}
+          <app-icon [nombre]="enlace.icono" [size]="18" />
+          <span>{{ enlace.titulo }}</span>
         </a>
       }
-    </div>
+    </nav>
 
     <div class="pie">
-      <p class="usuario">👋 {{ usuario()?.email ?? 'Orientador' }}</p>
-      <button class="secundario salir" (click)="cerrarSesion()">↪ Cerrar sesión</button>
+      <a class="politica" routerLink="/privacidad">
+        <app-icon nombre="privacidad" [size]="16" />
+        <span>Política de privacidad</span>
+      </a>
+      <div class="usuario">
+        <div class="avatar" aria-hidden="true">{{ (usuario()?.email ?? '?')[0].toUpperCase() }}</div>
+        <div class="datos">
+          <span class="correo" [title]="usuario()?.email">{{ usuario()?.email }}</span>
+          <span class="rol">Orientador</span>
+        </div>
+      </div>
+      <button class="salir" (click)="cerrarSesion()">
+        <app-icon nombre="salir" [size]="16" />
+        Cerrar sesión
+      </button>
+      <div class="version">AlertaTemprana v{{ version }}</div>
     </div>
   </aside>
 

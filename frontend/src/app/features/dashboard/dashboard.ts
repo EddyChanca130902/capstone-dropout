@@ -1,15 +1,18 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, PercentPipe } from '@angular/common';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Resumen } from '../../core/models';
+import { EmptyState } from '../../shared/empty-state';
+import { Icon } from '../../shared/icon';
 import { RiskBadge } from '../../shared/risk-badge';
+import { Skeleton } from '../../shared/skeleton';
 
 @Component({
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RiskBadge, DecimalPipe],
+  imports: [RouterLink, RiskBadge, Skeleton, EmptyState, Icon, DecimalPipe, PercentPipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -31,10 +34,16 @@ export class Dashboard implements OnInit {
   });
 
   async ngOnInit(): Promise<void> {
+    await this.cargar();
+  }
+
+  async cargar(): Promise<void> {
+    this.cargando.set(true);
+    this.error.set(null);
     try {
       this.resumen.set(await this.api.resumen());
     } catch {
-      this.error.set('No se pudo cargar el panel.');
+      this.error.set('No se pudo cargar el panel. Revisa tu conexión e inténtalo de nuevo.');
     } finally {
       this.cargando.set(false);
     }

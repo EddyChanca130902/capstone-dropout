@@ -1,49 +1,123 @@
 <section class="hero">
-  <div class="eyebrow">Centro de seguimiento · Resumen</div>
-  <h1>Hola, {{ usuario()?.email ?? 'orientador' }}</h1>
-  <p>Monitorea las evaluaciones y prioriza el acompañamiento académico.</p>
+  <div>
+    <div class="eyebrow">Centro de seguimiento · Resumen</div>
+    <h1>Hola, {{ usuario()?.email ?? 'orientador' }}</h1>
+    <p>Monitorea las evaluaciones y prioriza el acompañamiento académico.</p>
+  </div>
+  <div class="acciones">
+    <a routerLink="/evaluar">
+      <button type="button"><app-icon nombre="mas" [size]="16" /> Nueva evaluación</button>
+    </a>
+    <a routerLink="/historial">
+      <button type="button" class="secundario">
+        Ver historial <app-icon nombre="derecha" [size]="15" />
+      </button>
+    </a>
+  </div>
 </section>
 
 @if (cargando()) {
-  <p>Cargando indicadores…</p>
+  <!-- Estado de carga: esqueletos con la forma del contenido -->
+  <div class="metricas">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="tarjeta metrica">
+        <app-skeleton alto="0.7rem" ancho="55%" />
+        <app-skeleton alto="1.8rem" ancho="40%" />
+      </div>
+    }
+  </div>
+  <div class="graficos">
+    <div class="tarjeta">
+      <app-skeleton alto="1.1rem" ancho="45%" />
+      <app-skeleton alto="0.8rem" ancho="70%" />
+      <div class="lineas">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="linea">
+            <app-skeleton alto="0.7rem" ancho="70px" />
+            <app-skeleton alto="0.6rem" />
+            <app-skeleton alto="0.7rem" ancho="24px" />
+          </div>
+        }
+      </div>
+    </div>
+    <div class="tarjeta">
+      <app-skeleton alto="1.1rem" ancho="55%" />
+      <app-skeleton alto="0.8rem" ancho="60%" />
+      <div class="lineas">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="linea">
+            <app-skeleton alto="0.7rem" ancho="110px" />
+            <app-skeleton alto="0.6rem" />
+            <app-skeleton alto="0.7rem" ancho="24px" />
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="tarjeta">
+    <app-skeleton alto="1.1rem" ancho="35%" />
+    @for (i of [1, 2, 3]; track i) {
+      <div class="fila-skeleton">
+        <app-skeleton alto="0.75rem" ancho="90px" />
+        <app-skeleton alto="0.75rem" ancho="150px" />
+        <app-skeleton alto="0.75rem" ancho="110px" />
+        <app-skeleton alto="0.75rem" ancho="60px" />
+      </div>
+    }
+  </div>
 } @else if (error()) {
-  <div class="error">{{ error() }}</div>
+  <div class="tarjeta estado-error">
+    <app-icon nombre="alerta" [size]="26" />
+    <h3>No se pudo cargar el panel</h3>
+    <p>{{ error() }}</p>
+    <button type="button" (click)="cargar()">
+      <app-icon nombre="refrescar" [size]="16" /> Reintentar
+    </button>
+  </div>
 } @else if (resumen(); as r) {
   @if (r.estudiantes_evaluados === 0) {
-    <div class="tarjeta vacio">
-      <b>Tu panel está listo.</b>
-      <p>Registra la primera evaluación para empezar a ver los indicadores.</p>
-      <a routerLink="/evaluar"><button>＋ Nueva evaluación</button></a>
+    <div class="tarjeta">
+      <app-empty-state
+        icono="bandeja"
+        titulo="Tu panel está listo"
+        mensaje="Todavía no has registrado ninguna evaluación. En cuanto registres la primera, verás aquí los indicadores de riesgo y los casos que requieren seguimiento."
+        textoAccion="Evaluar a un estudiante"
+        rutaAccion="/evaluar"
+      />
     </div>
   } @else {
-    <div class="acciones">
-      <a routerLink="/evaluar"><button>＋ Nueva evaluación</button></a>
-      <a routerLink="/historial"><button class="secundario">Ver historial →</button></a>
-    </div>
-
     <div class="metricas">
       <div class="tarjeta metrica">
         <span class="rotulo">Estudiantes evaluados</span>
         <span class="valor">{{ r.estudiantes_evaluados }}</span>
+        <span class="ayuda">Última evaluación de cada estudiante</span>
       </div>
       <div class="tarjeta metrica">
         <span class="rotulo">Evaluaciones realizadas</span>
         <span class="valor">{{ r.evaluaciones_realizadas }}</span>
+        <span class="ayuda">Incluye reevaluaciones</span>
       </div>
       <div class="tarjeta metrica">
         <span class="rotulo">En riesgo alto</span>
         <span class="valor" style="color: var(--risk-high)">{{ r.en_riesgo_alto }}</span>
+        <span class="ayuda">
+          {{ r.estudiantes_evaluados
+            ? (r.en_riesgo_alto / r.estudiantes_evaluados | percent: '1.0-0')
+            : '0 %' }}
+          del estado actual
+        </span>
       </div>
       <div class="tarjeta metrica">
         <span class="rotulo">Probabilidad promedio</span>
         <span class="valor">
           {{ r.probabilidad_promedio === null ? '—' : (r.probabilidad_promedio * 100 | number: '1.1-1') + '%' }}
         </span>
+        <span class="ayuda">En la evaluación más reciente</span>
       </div>
     </div>
 
     <div class="graficos">
-      <div class="tarjeta">
+      <div class="tarjeta interactiva">
         <h2>Estado actual de riesgo</h2>
         <p class="sub">Última evaluación disponible por estudiante</p>
         @for (nivel of ['ALTO', 'MEDIO', 'BAJO']; track nivel) {
@@ -53,7 +127,9 @@
               <div
                 class="relleno"
                 [style.width.%]="porcentaje(r.por_nivel[nivel] ?? 0)"
-                [style.background]="nivel === 'ALTO' ? 'var(--risk-high)' : nivel === 'MEDIO' ? 'var(--risk-medium)' : 'var(--risk-low)'"
+                [style.background]="
+                  nivel === 'ALTO' ? 'var(--risk-high)' : nivel === 'MEDIO' ? 'var(--risk-medium)' : 'var(--risk-low)'
+                "
               ></div>
             </div>
             <span class="barra-valor">{{ r.por_nivel[nivel] ?? 0 }}</span>
@@ -61,19 +137,26 @@
         }
       </div>
 
-      <div class="tarjeta">
+      <div class="tarjeta interactiva">
         <h2>Riesgo por área de estudios</h2>
         <p class="sub">Estudiantes en riesgo alto por área</p>
         @for (area of r.por_area; track area.area) {
           <div class="barra-fila">
-            <span class="barra-etiqueta area">{{ area.area }}</span>
+            <span class="barra-etiqueta area" [title]="area.area">{{ area.area }}</span>
             <div class="pista">
-              <div class="relleno" [style.width.%]="porcentajeArea(area.total)" style="background: var(--risk-high)"></div>
+              <div
+                class="relleno"
+                [style.width.%]="porcentajeArea(area.total)"
+                style="background: var(--risk-high)"
+              ></div>
             </div>
             <span class="barra-valor">{{ area.total }}</span>
           </div>
         } @empty {
-          <p class="sub">Sin estudiantes en riesgo alto todavía.</p>
+          <div class="sin-datos">
+            <app-icon nombre="check" [size]="18" />
+            <p>Ningún estudiante en riesgo alto por ahora.</p>
+          </div>
         }
       </div>
     </div>
@@ -95,10 +178,14 @@
           @for (fila of r.recientes; track fila.id) {
             <tr>
               <td>{{ formatoFecha(fila.creado_en) }}</td>
-              <td>{{ fila.nombre }}</td>
+              <td class="nombre">{{ fila.nombre }}</td>
               <td>{{ fila.area_estudios }}</td>
-              <td>{{ fila.probabilidad * 100 | number: '1.1-1' }}%</td>
+              <td class="probabilidad">{{ fila.probabilidad * 100 | number: '1.1-1' }}%</td>
               <td><app-risk-badge [nivel]="fila.nivel" /></td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="vacio-tabla">Sin evaluaciones todavía.</td>
             </tr>
           }
         </tbody>
@@ -106,6 +193,7 @@
     </div>
 
     <p class="nota">
+      <app-icon nombre="info" [size]="15" />
       Los niveles son una <b>estimación del modelo</b> para apoyar la revisión del orientador; no
       representan casos confirmados de abandono.
     </p>

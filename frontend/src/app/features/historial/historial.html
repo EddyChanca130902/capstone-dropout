@@ -1,9 +1,16 @@
-<h1>📋 Historial de Evaluaciones</h1>
-<p class="intro">Consulta y corrige las evaluaciones registradas.</p>
+<div class="cabecera">
+  <div>
+    <h1>Historial de Evaluaciones</h1>
+    <p class="intro">Consulta, corrige y elimina las evaluaciones registradas.</p>
+  </div>
+  @if (!cargando() && filas().length > 0) {
+    <span class="contador">{{ filas().length }} registro{{ filas().length === 1 ? '' : 's' }}</span>
+  }
+</div>
 
 <div class="filtros">
   <div>
-    <label for="area">Área de estudios</label>
+    <label for="area"><app-icon nombre="filtro" [size]="13" /> Área de estudios</label>
     <select id="area" [(ngModel)]="filtroArea" (change)="cargar()">
       <option value="">Todas las áreas</option>
       @for (area of areas; track area) {
@@ -12,7 +19,7 @@
     </select>
   </div>
   <div>
-    <label for="nivel">Nivel de riesgo</label>
+    <label for="nivel"><app-icon nombre="filtro" [size]="13" /> Nivel de riesgo</label>
     <select id="nivel" [(ngModel)]="filtroNivel" (change)="cargar()">
       <option value="">Todos los niveles</option>
       <option value="ALTO">Alto</option>
@@ -20,21 +27,67 @@
       <option value="BAJO">Bajo</option>
     </select>
   </div>
+  @if (hayFiltros()) {
+    <div class="limpiar">
+      <button type="button" class="secundario" (click)="limpiarFiltros()">
+        <app-icon nombre="refrescar" [size]="15" /> Limpiar filtros
+      </button>
+    </div>
+  }
 </div>
 
-@if (aviso()) {
-  <div class="exito">{{ aviso() }}</div>
-}
-@if (error()) {
-  <div class="error">{{ error() }}</div>
-}
-
-<section class="tarjeta">
-  @if (cargando()) {
-    <p>Cargando evaluaciones…</p>
-  } @else if (filas().length === 0) {
-    <p>No hay evaluaciones registradas todavía.</p>
-  } @else {
+@if (cargando()) {
+  <div class="tarjeta">
+    <div class="cabecera-skeleton">
+      <app-skeleton alto="0.9rem" ancho="180px" />
+      <app-skeleton alto="0.7rem" ancho="260px" />
+    </div>
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="fila-skeleton">
+        <app-skeleton alto="0.75rem" ancho="110px" />
+        <app-skeleton alto="0.75rem" ancho="80px" />
+        <app-skeleton alto="0.75rem" ancho="130px" />
+        <app-skeleton alto="0.75rem" ancho="130px" />
+        <app-skeleton alto="0.75rem" ancho="60px" />
+        <app-skeleton alto="0.75rem" ancho="90px" />
+        <app-skeleton alto="0.75rem" ancho="150px" />
+      </div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="tarjeta estado-error">
+    <app-icon nombre="alerta" [size]="26" />
+    <h3>No se pudo cargar el historial</h3>
+    <p>{{ error() }}</p>
+    <button type="button" (click)="cargar()">
+      <app-icon nombre="refrescar" [size]="16" /> Reintentar
+    </button>
+  </div>
+} @else if (filas().length === 0) {
+  <div class="tarjeta">
+    @if (hayFiltros()) {
+      <app-empty-state
+        icono="buscar"
+        titulo="Sin resultados"
+        mensaje="No hay evaluaciones que coincidan con los filtros aplicados. Prueba a ampliarlos o a limpiarlos."
+        textoAccion="Limpiar filtros"
+        iconoAccion="refrescar"
+      />
+      <div class="centro">
+        <button type="button" class="secundario" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+    } @else {
+      <app-empty-state
+        icono="historial"
+        titulo="Todavía no hay evaluaciones"
+        mensaje="Cuando registres la primera evaluación de un estudiante aparecerá aquí, con su probabilidad de abandono y el nivel de riesgo calculado por el modelo."
+        textoAccion="Evaluar a un estudiante"
+        rutaAccion="/evaluar"
+      />
+    }
+  </div>
+} @else {
+  <div class="tarjeta">
     <table class="tabla">
       <thead>
         <tr>
@@ -49,32 +102,49 @@
       </thead>
       <tbody>
         @for (fila of filas(); track fila.id) {
-          <tr>
-            <td>{{ formatoFecha(fila.creado_en) }}</td>
+          <tr [class.editando]="guardando() === fila.id">
+            <td class="fecha">{{ formatoFecha(fila.creado_en) }}</td>
             <td>{{ fila.dni }}</td>
-            <td>{{ fila.nombre }}</td>
+            <td class="nombre">{{ fila.nombre }}</td>
             <td>{{ fila.area_estudios }}</td>
-            <td>{{ fila.probabilidad * 100 | number: '1.1-1' }}%</td>
+            <td class="probabilidad">{{ fila.probabilidad * 100 | number: '1.1-1' }}%</td>
             <td><app-risk-badge [nivel]="fila.nivel" /></td>
-            <td class="acciones">
-              <select
-                [ngModel]="fila.nivel"
-                (ngModelChange)="corregir(fila, $event)"
-                [name]="'nivel-' + fila.id"
-              >
-                <option value="BAJO">BAJO</option>
-                <option value="MEDIO">MEDIO</option>
-                <option value="ALTO">ALTO</option>
-              </select>
-              <button class="peligro" (click)="eliminar(fila.id)">Eliminar</button>
+            <td>
+              <div class="acciones">
+                <select
+                  [ngModel]="fila.nivel"
+                  (ngModelChange)="corregir(fila, $event)"
+                  [name]="'nivel-' + fila.id"
+                  [disabled]="guardando() === fila.id"
+                  aria-label="Nivel de riesgo"
+                >
+                  <option value="BAJO">BAJO</option>
+                  <option value="MEDIO">MEDIO</option>
+                  <option value="ALTO">ALTO</option>
+                </select>
+                <button
+                  type="button"
+                  class="peligro icono-boton"
+                  (click)="eliminar(fila)"
+                  [disabled]="guardando() === fila.id"
+                  [attr.aria-label]="'Eliminar la evaluación de ' + fila.nombre"
+                >
+                  @if (guardando() === fila.id) {
+                    <span class="spinner oscuro"></span>
+                  } @else {
+                    <app-icon nombre="basura" [size]="15" />
+                  }
+                </button>
+              </div>
             </td>
           </tr>
         }
       </tbody>
     </table>
     <p class="nota">
+      <app-icon nombre="info" [size]="14" />
       Los datos académicos de entrada no se guardan en el historial. Si cambias la probabilidad o el
       nivel, el modelo no vuelve a calcular el resultado.
     </p>
-  }
-</section>
+  </div>
+}

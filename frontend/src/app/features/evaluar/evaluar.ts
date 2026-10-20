@@ -3,19 +3,22 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { ApiService } from '../../core/api.service';
+import { AvisosService } from '../../core/avisos.service';
 import { AREAS, Area, Estudiante, Prediccion } from '../../core/models';
+import { Icon } from '../../shared/icon';
 import { RiskBadge } from '../../shared/risk-badge';
 
 @Component({
   selector: 'app-evaluar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, RiskBadge, DecimalPipe],
+  imports: [ReactiveFormsModule, RouterLink, RiskBadge, Icon, DecimalPipe],
   templateUrl: './evaluar.html',
   styleUrl: './evaluar.scss',
 })
 export class Evaluar {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(ApiService);
+  private readonly avisos = inject(AvisosService);
 
   readonly areas = AREAS;
   readonly paso = signal<1 | 2>(1);
@@ -49,7 +52,7 @@ export class Evaluar {
     this.error.set(null);
     if (this.personal.invalid) {
       this.personal.markAllAsTouched();
-      this.error.set('Completa los datos personales (DNI y nombre son obligatorios).');
+      this.error.set('Completa los datos personales: DNI y nombre son obligatorios.');
       return;
     }
     this.paso.set(2);
@@ -76,7 +79,10 @@ export class Evaluar {
       ...this.academico.getRawValue(),
     };
 
-    if (estudiante.cu1_aprobadas > estudiante.cu1_matriculadas || estudiante.cu2_aprobadas > estudiante.cu2_matriculadas) {
+    if (
+      estudiante.cu1_aprobadas > estudiante.cu1_matriculadas ||
+      estudiante.cu2_aprobadas > estudiante.cu2_matriculadas
+    ) {
       this.error.set('No se pueden aprobar más asignaturas de las matriculadas.');
       return;
     }
@@ -87,16 +93,21 @@ export class Evaluar {
       this.resultado.set(prediccion);
       await this.api.crearEvaluacion(estudiante);
       this.guardado.set(true);
+      this.avisos.exito(
+        'Evaluación guardada',
+        `${estudiante.nombre} · ${prediccion.nivel} · ${(prediccion.probabilidad * 100).toFixed(1)} %`,
+      );
     } catch (error) {
       const detalle =
         typeof error === 'object' && error !== null && 'error' in error
           ? ((error as { error?: { detail?: unknown } }).error?.detail ?? '')
           : '';
-      this.error.set(
+      const mensaje =
         typeof detalle === 'string' && detalle
           ? detalle
-          : 'No se pudo completar la evaluación. Inténtalo de nuevo.',
-      );
+          : 'No se pudo completar la evaluación. Inténtalo de nuevo.';
+      this.error.set(mensaje);
+      this.avisos.error('No se pudo completar la evaluación', mensaje);
     } finally {
       this.cargando.set(false);
     }
@@ -105,6 +116,7 @@ export class Evaluar {
   reiniciar(): void {
     this.resultado.set(null);
     this.guardado.set(false);
+    this.error.set(null);
     this.paso.set(1);
   }
 }

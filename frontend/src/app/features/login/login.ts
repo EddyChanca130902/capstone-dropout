@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { Icon } from '../../shared/icon';
 
 @Component({
   selector: 'app-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink, Icon],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -35,7 +36,7 @@ export class Login {
     this.error.set(null);
     this.detalle.set(null);
     try {
-      // Eltrim evita el error mas comun: un espacio pegado al final.
+      // El trim evita el error mas comun: un espacio pegado al final.
       const { email, password } = this.formulario.getRawValue();
       await this.auth.login(email.trim(), password);
       await this.router.navigate(['/panel']);

@@ -4,10 +4,12 @@ import { Login } from './features/login/login';
 import { Dashboard } from './features/dashboard/dashboard';
 import { Evaluar } from './features/evaluar/evaluar';
 import { Historial } from './features/historial/historial';
+import { Privacidad } from './features/privacidad/privacidad';
 import { Shell } from './shared/shell';
 
 export const routes: Routes = [
   { path: 'login', component: Login, title: 'Iniciar sesión · AlertaTemprana' },
+  { path: 'privacidad', component: Privacidad, title: 'Política de Privacidad · AlertaTemprana' },
   {
     path: '',
     component: Shell,
