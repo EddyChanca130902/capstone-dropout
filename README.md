@@ -340,7 +340,10 @@ El sistema tiene dos piezas que se despliegan por separado:
 4. Render te dara una URL del tipo `https://alertatemprana-api.onrender.com`. Verifica:
    `https://alertatemprana-api.onrender.com/health` -> `"estado": "ok"`.
 
-> El `Dockerfile` ya fija `OMP_NUM_THREADS=1` (evita la sobrecoste de hilos de
+> > La imagen usa `requirements-api.txt` (dependencias minimas: sin Streamlit, Jupyter ni
+> matplotlib) y el `Dockerfile` instala `libgomp1`, sin el cual XGBoost no arranca.
+
+El `Dockerfile` ya fija `OMP_NUM_THREADS=1` (evita la sobrecoste de hilos de
 > XGBoost bajo concurrencia) y las versiones criticas van pinneadas en
 > `requirements.txt`, porque un `.joblib` no es portable entre versiones.
 

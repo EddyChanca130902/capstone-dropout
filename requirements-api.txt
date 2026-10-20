@@ -1,0 +1,23 @@
+# Dependencias minimas para la imagen de la API (Docker).
+# El entorno de desarrollo usa requirements.txt completo (incluye Streamlit,
+# Jupyter, SHAP y matplotlib, que la API no necesita).
+#
+# Versiones pinneadas: un .joblib no es portable entre versiones de
+# scikit-learn / xgboost / pandas.
+pandas==3.0.6
+numpy==2.4.6
+scikit-learn==1.9.1
+xgboost==3.2.0
+joblib==1.6.0
+
+fastapi==0.156.0
+uvicorn[standard]==0.54.0
+pydantic==2.14.1
+pydantic-settings==2.16.1
+python-dotenv==1.2.4
+PyJWT==2.15.1
+cryptography==50.0.2
+
+postgrest==2.33.0
+httpx==0.28.1
+argon2-cffi==25.1.0
