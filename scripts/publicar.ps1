@@ -2,7 +2,7 @@
     Publica el repositorio en GitHub.
 
     Uso:
-      .\scripts\publicar.ps1 -UrlGitHub "https://github.com/TU-USUARIO/capstone-dropout.git"
+      .\scripts\publicar.ps1 -UrlGitHub "https://github.com/EddyChanca130902/capstone-dropout.git"
 
     El script:
       1. Comprueba que el working tree esta limpio.
@@ -10,8 +10,7 @@
       3. Sube la rama `main`.
 #>
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$UrlGitHub
+    [string]$UrlGitHub = "https://github.com/EddyChanca130902/capstone-dropout.git"
 )
 
 $ErrorActionPreference = "Stop"
