@@ -17,7 +17,7 @@ from database import (
     obtener_historial,
 )
 
-st.set_page_config(page_title="AlertaTemprana", layout="wide", page_icon="🎓")
+st.set_page_config(page_title="EarlySign", layout="wide", page_icon="🎓")
 
 st.markdown("""
 <style>
@@ -179,7 +179,7 @@ if not st.session_state["autenticado"]:
 st.sidebar.markdown("""
 <div style="display:flex;align-items:center;gap:12px;margin:.2rem 0 1.4rem">
   <div style="width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:#e6f3f1;font-size:22px">🎓</div>
-  <div><div style="font:800 1.05rem Manrope,sans-serif;color:#182b3a">AlertaTemprana</div>
+  <div><div style="font:800 1.05rem Manrope,sans-serif;color:#182b3a">EarlySign</div>
   <div style="font-size:.78rem;color:#667887">Seguimiento académico</div></div>
 </div>
 """, unsafe_allow_html=True)

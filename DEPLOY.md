@@ -1,4 +1,4 @@
-# Guía de despliegue · AlertaTemprana
+# Guía de despliegue · EarlySign
 
 El sistema tiene dos piezas que se despliegan por separado:
 

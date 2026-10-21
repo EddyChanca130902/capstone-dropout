@@ -37,20 +37,20 @@ describe('AuthService', () => {
   });
 
   it('guarda el token tras un login correcto', async () => {
-    const promesa = servicio.login('orientador@alertatemprana.pe', 'clave');
+    const promesa = servicio.login('orientador@upn.edu.pe', 'clave');
     const peticion = http.expectOne(`${environment.apiUrl}/auth/login`);
     expect(peticion.request.method).toBe('POST');
     peticion.flush({
       access_token: 'token-abc',
       refresh_token: 'refresh-xyz',
-      usuario: { id: 'u1', email: 'orientador@alertatemprana.pe' },
+      usuario: { id: 'u1', email: 'orientador@upn.edu.pe' },
     });
     await promesa;
 
     expect(servicio.autenticado()).toBe(true);
     expect(servicio.token()).toBe('token-abc');
-    expect(localStorage.getItem('alertatemprana.access_token')).toBe('token-abc');
-    expect(servicio.usuario()?.email).toBe('orientador@alertatemprana.pe');
+    expect(localStorage.getItem('earlysign.access_token')).toBe('token-abc');
+    expect(servicio.usuario()?.email).toBe('orientador@upn.edu.pe');
   });
 
   it('propaga el error si las credenciales son invalidas', async () => {
@@ -64,10 +64,10 @@ describe('AuthService', () => {
   });
 
   it('logout limpia el estado y el almacenamiento', () => {
-    localStorage.setItem('alertatemprana.access_token', 'x');
-    localStorage.setItem('alertatemprana.refresh_token', 'y');
+    localStorage.setItem('earlysign.access_token', 'x');
+    localStorage.setItem('earlysign.refresh_token', 'y');
     servicio.logout();
     expect(servicio.autenticado()).toBe(false);
-    expect(localStorage.getItem('alertatemprana.access_token')).toBeNull();
+    expect(localStorage.getItem('earlysign.access_token')).toBeNull();
   });
 });

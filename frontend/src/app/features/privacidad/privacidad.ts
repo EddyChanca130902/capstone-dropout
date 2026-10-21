@@ -24,7 +24,7 @@ export class Privacidad {
       titulo: 'Responsable del tratamiento',
       icono: 'usuarios',
       contenido: [
-        'AlertaTemprana es un sistema de apoyo al orientador académico. El responsable del tratamiento es la institución de educación superior que opera la plataforma, a través de la unidad de orientación y bienestar estudiantil.',
+        'EarlySign es un sistema de apoyo al orientador académico. El responsable del tratamiento es la institución de educación superior que opera la plataforma, a través de la unidad de orientación y bienestar estudiantil.',
         'El tratamiento se realiza en nombre propio de la institución y conforme a la normativa vigente de protección de datos personales.',
       ],
     },

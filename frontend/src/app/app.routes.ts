@@ -8,17 +8,17 @@ import { Privacidad } from './features/privacidad/privacidad';
 import { Shell } from './shared/shell';
 
 export const routes: Routes = [
-  { path: 'login', component: Login, title: 'Iniciar sesión · AlertaTemprana' },
-  { path: 'privacidad', component: Privacidad, title: 'Política de Privacidad · AlertaTemprana' },
+  { path: 'login', component: Login, title: 'Iniciar sesión · EarlySign' },
+  { path: 'privacidad', component: Privacidad, title: 'Política de Privacidad · EarlySign' },
   {
     path: '',
     component: Shell,
     canActivate: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'panel' },
-      { path: 'panel', component: Dashboard, title: 'Panel · AlertaTemprana' },
-      { path: 'evaluar', component: Evaluar, title: 'Evaluar estudiante · AlertaTemprana' },
-      { path: 'historial', component: Historial, title: 'Historial · AlertaTemprana' },
+      { path: 'panel', component: Dashboard, title: 'Panel · EarlySign' },
+      { path: 'evaluar', component: Evaluar, title: 'Evaluar estudiante · EarlySign' },
+      { path: 'historial', component: Historial, title: 'Historial · EarlySign' },
     ],
   },
   { path: '**', redirectTo: '' },

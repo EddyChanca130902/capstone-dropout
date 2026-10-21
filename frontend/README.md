@@ -1,4 +1,4 @@
-# AlertaTemprana · Frontend (Angular 22)
+# EarlySign · Frontend (Angular 22)
 
 SPA del sistema de alerta temprana: login, panel de indicadores, formulario de
 evaluación en dos pasos e historial de evaluaciones.

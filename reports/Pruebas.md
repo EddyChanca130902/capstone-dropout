@@ -1,4 +1,4 @@
-# Informe de pruebas · AlertaTemprana
+# Informe de pruebas · EarlySign
 
 Fecha: 21 de octubre de 2026
 Entorno: Windows 11 · 12 nucleos lógicos · Python 3.11.9 · Node 24.15 · k6 v2.0.0

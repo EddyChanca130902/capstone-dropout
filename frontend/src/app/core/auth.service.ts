@@ -5,8 +5,8 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Sesion, Usuario } from './models';
 
-const CLAVE_ACCESO = 'alertatemprana.access_token';
-const CLAVE_REFRESH = 'alertatemprana.refresh_token';
+const CLAVE_ACCESO = 'earlysign.access_token';
+const CLAVE_REFRESH = 'earlysign.refresh_token';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

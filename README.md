@@ -1,18 +1,37 @@
-# AlertaTemprana · Predicción de riesgo de abandono universitario
+# EarlySign · Señales tempranas de abandono académico
+
+**Universidad Privada del Norte (UPN)** · Proyecto de tesis T2
 
 Sistema de alerta temprana para orientar el acompañamiento académico: a partir de los
 datos que registra el orientador, estima la probabilidad de abandono de un estudiante y
-prioriza los casos que requieren seguimiento.
+prioriza los casos que requieren seguimiento. **No sustituye el criterio profesional:**
+informa, la persona decide.
 
-**Stack actual:** Angular 22 (frontend) · FastAPI (backend) · Supabase (Postgres + Auth) ·
-XGBoost (modelo) · k6 (pruebas de carga) · pytest + Vitest (pruebas unitarias).
+**Stack:** Angular 22 (frontend) · FastAPI (backend) · Supabase (Postgres + Auth + RLS) ·
+XGBoost (modelo) · k6 (pruebas de carga) · pytest + Vitest (pruebas unitarias) ·
+Docker · Render + Vercel · GitHub Actions.
+
+> **Demo en línea**
+> Frontend: https://capstone-dropout.vercel.app · API: https://alertatemprana-api.onrender.com/docs
+
+---
+
+## Documentación del proyecto
+
+| Documento | Contenido | Criterio de evaluación |
+|---|---|---|
+| [INFORME.md](INFORME.md) | Problema, objetivos, **alternativas evaluadas**, restricciones, **riesgos**, herramientas, metodología, diseño, **plan de desarrollo** y coherencia informe-software | 2 · Informe y coherencia |
+| [docs/PLAN_CALIDAD.md](docs/PLAN_CALIDAD.md) | Estrategia de pruebas, alcance, criterios de entrada/salida, gestión de incidencias y **registro de las 17 incidencias corregidas** | 3 · Pruebas y control de calidad |
+| [docs/PLAN_SEGURIDAD.md](docs/PLAN_SEGURIDAD.md) | Inventario de activos, modelo de amenazas (STRIDE), matriz de 16 controles con evidencia, gestión de secretos y **requisitos de instalación y ejecución** | 4 · Seguridad y condiciones de funcionamiento |
+| [docs/EVALUACION_SOLUCION.md](docs/EVALUACION_SOLUCION.md) | 25 indicadores con fórmula, **4 instrumentos de toma de datos**, trazabilidad y plan de evaluación con criterios de decisión | 5 · Indicadores y toma de datos |
+| [docs/ETICA_Y_FUENTES.md](docs/ETICA_Y_FUENTES.md) | Compromiso ético, fuentes citadas, **declaración de uso de IA** y atención de observaciones de T1 | 7 · Ética y observaciones |
+| [docs/GUION_SUSTENTACION.md](docs/GUION_SUSTENTACION.md) | Guion cronometrado de 12 min, plan de contingencia del demo y **preguntas con respuesta preparada** | 6 · Exposición y sustentación |
+| [DEPLOY.md](DEPLOY.md) | Guía paso a paso de despliegue en Render y Vercel | — |
+| [reports/Pruebas.md](reports/Pruebas.md) | Resultados medidos de las pruebas unitarias, de carga y de estrés | — |
 
 > El dashboard en Streamlit (`dashboard/`) se conserva como **cliente de referencia**
 > (comparar predicciones, trabajar sin conexión). El producto vigente es
 > Angular + FastAPI + Supabase.
-
-> **Demo en linea**
-> Frontend: https://capstone-dropout.vercel.app ? API: https://alertatemprana-api.onrender.com/docs
 
 ---
 

@@ -1,4 +1,4 @@
-"""API AlertaTemprana: prediccion de riesgo de abandono universitario.
+"""API EarlySign: prediccion de senales tempranas de abandono universitario.
 
 Ejecucion en desarrollo:
     uvicorn api.main:app --reload --port 8000
@@ -20,7 +20,7 @@ from api.services.model import cargar_modelo, informacion_modelo
 from api.services.supabase import estado_supabase
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-logger = logging.getLogger("alertatemprana")
+logger = logging.getLogger("earlysign")
 
 
 @asynccontextmanager
@@ -37,11 +37,11 @@ async def lifespan(app: FastAPI):
 def crear_app() -> FastAPI:
     config = obtener_config()
     app = FastAPI(
-        title="API AlertaTemprana",
+        title="API EarlySign",
         description=(
-            "Prediccion de riesgo de abandono academico. El modelo esta entrenado con "
-            "el dataset de la UCI (Portugal) y se expone como servicio para el "
-            "frontend Angular."
+            "EarlySign: prediccion de señales tempranas de abandono academico. El modelo esta "
+            "entrenado con el dataset de la UCI (Portugal) y se expone como servicio para "
+            "el frontend Angular."
         ),
         version="1.0.0",
         lifespan=lifespan,
@@ -78,7 +78,7 @@ def crear_app() -> FastAPI:
     @app.get("/api/v1", tags=["sistema"], summary="Indice de la API")
     def indice() -> dict[str, Any]:
         return {
-            "servicio": "API AlertaTemprana",
+            "servicio": "API EarlySign",
             "documentacion": "/docs",
             "endpoints": {
                 "login": "POST /api/v1/auth/login",
