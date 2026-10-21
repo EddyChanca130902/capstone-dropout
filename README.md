@@ -208,6 +208,10 @@ y sesgaba la predicción.
 
 ## 4. Pruebas
 
+> Informe completo con resultados medidos: **[reports/Pruebas.md](reports/Pruebas.md)**
+
+## 4. Pruebas
+
 ### 4.1 Unitarias y de integración (pytest)
 
 ```powershell

@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 
 from api.core.config import Settings, obtener_config
 from api.core.security import UsuarioActual, usuario_actual
+from api.core.sesion_cache import CACHE_SESIONES
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -30,11 +31,20 @@ class RefreshIn(BaseModel):
 
 def _error_supabase(respuesta: httpx.Response) -> HTTPException:
     detalle = respuesta.text
+    codigo_error = ""
     try:
         cuerpo = respuesta.json()
         detalle = cuerpo.get("msg") or cuerpo.get("error_description") or cuerpo.get("message") or detalle
+        codigo_error = str(cuerpo.get("error_code") or cuerpo.get("code") or "")
     except Exception:
         pass
+
+    # 429: Supabase esta limitando la tasa de intentos (no son credenciales erroneas).
+    if respuesta.status_code == 429 or "too_many" in codigo_error.lower() or "rate" in codigo_error.lower():
+        return HTTPException(
+            status.HTTP_429_TOO_MANY_REQUESTS,
+            "Demasiados intentos de inicio de sesion. Espera unos minutos e intentalo de nuevo.",
+        )
     codigo = status.HTTP_401_UNAUTHORIZED if respuesta.status_code in (400, 401) else status.HTTP_400_BAD_REQUEST
     return HTTPException(codigo, str(detalle))
 
@@ -43,6 +53,12 @@ def _error_supabase(respuesta: httpx.Response) -> HTTPException:
 def login(datos: LoginIn, config: Settings = Depends(obtener_config)) -> dict[str, Any]:
     if not config.supabase_base_url:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Supabase no esta configurado")
+
+    # Cache corta: evita gastar el limite de tasa de Supabase Auth.
+    cacheada = CACHE_SESIONES.obtener(datos.email, datos.password)
+    if cacheada is not None:
+        return cacheada
+
     url = f"{config.supabase_base_url}/auth/v1/token?grant_type=password"
     with httpx.Client(timeout=15) as cliente:
         respuesta = cliente.post(
@@ -53,7 +69,7 @@ def login(datos: LoginIn, config: Settings = Depends(obtener_config)) -> dict[st
     if respuesta.status_code != 200:
         raise _error_supabase(respuesta)
     cuerpo = respuesta.json()
-    return {
+    sesion = {
         "access_token": cuerpo.get("access_token"),
         "refresh_token": cuerpo.get("refresh_token"),
         "token_type": cuerpo.get("token_type", "bearer"),
@@ -63,6 +79,8 @@ def login(datos: LoginIn, config: Settings = Depends(obtener_config)) -> dict[st
             "email": (cuerpo.get("user") or {}).get("email"),
         },
     }
+    CACHE_SESIONES.guardar(datos.email, datos.password, sesion)
+    return sesion
 
 
 @router.post("/refresh", summary="Renueva el access token")
