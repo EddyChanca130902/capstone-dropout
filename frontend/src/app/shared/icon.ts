@@ -21,6 +21,7 @@ const ICONOS: Record<string, string[]> = {
     'M3 3l18 18',
   ],
   mas: ['M12 5v14', 'M5 12h14'],
+  cerrar: ['M18 6 6 18', 'M6 6l12 12'],
   derecha: ['M5 12h14', 'M12 5l7 7-7 7'],
   izquierda: ['M19 12H5', 'M12 19l-7-7 7-7'],
   check: ['M20 6 9 17l-5-5'],

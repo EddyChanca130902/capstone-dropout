@@ -108,15 +108,19 @@ sistema** (`GET /api/v1/kpis/impacto`), no de forma manual.
 #### KPI 1 · Tasa de cobertura de intervención
 
 ```
-(Estudiantes derivados a Acompanañamiento / Total de estudiantes detectados
- con alto nivel de riesgo) x 100
+(Estudiantes derivados a Acompañamiento / Total de estudiantes detectados
+ en algún momento con alto nivel de riesgo) × 100
 ```
 
 > *El modelo predictivo detecta el problema (riesgo de abandono asociado a la variable
 > dependiente). Este KPI mide qué porcentaje de esos alumnos identificados reciben
 > realmente una solución o plan de apoyo por parte del orientador académico.*
 
-- **Fuente**: `evaluaciones` (nivel `ALTO` de la última evaluación de cada DNI) ∩ `intervenciones`.
+- **Fuente**: `evaluaciones` (nivel `ALTO` en **cualquier** evaluación del DNI) ∩ `intervenciones`.
+- **Por qué no la última evaluación**: si el denominador fuera «los que hoy están en ALTO»,
+  un estudiante que mejoró tras la intervención saldría de él y la cobertura **bajaría
+  justamente cuando el sistema funciona**. La cobertura se mide sobre los detectados, no
+  sobre los que siguen en riesgo.
 - **Implementado en**: `api/services/kpis.py` → `kpi_cobertura_intervencion`.
 - **Endpoint**: `GET /api/v1/kpis/impacto`.
 

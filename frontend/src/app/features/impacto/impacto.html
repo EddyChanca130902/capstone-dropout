@@ -8,8 +8,8 @@
     </p>
   </div>
   <button type="button" (click)="mostrarFormulario = !mostrarFormulario" class="nuevo">
-    <app-icon nombre="mas" [size]="16" />
-    Registrar derivación
+    <app-icon [nombre]="mostrarFormulario ? 'cerrar' : 'mas'" [size]="16" />
+    {{ mostrarFormulario ? 'Cerrar formulario' : 'Nueva derivación' }}
   </button>
 </div>
 
@@ -148,7 +148,7 @@
         iconoAccion="mas"
       />
       <div class="centro">
-        <button type="button" (click)="mostrarFormulario = true">Registrar derivación</button>
+        <button type="button" (click)="mostrarFormulario = true">Nueva derivación</button>
       </div>
     } @else {
       <table class="tabla">

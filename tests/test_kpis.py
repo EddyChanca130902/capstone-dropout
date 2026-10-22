@@ -73,6 +73,28 @@ def test_kpi1_cobertura_de_intervencion():
     assert kpi["disponible"] is True
 
 
+def test_kpi1_un_estudiante_que_mejora_sigue_contando_en_el_denominador():
+    """La cobertura se mide sobre los detectados alguna vez en ALTO.
+
+    Un estudiante que bajo de ALTO a BAJO tras la intervencion no puede salir
+    del denominador: si saliera, la cobertura caeria precisamente porque la
+    intervencion funciono.
+    """
+    filas = [
+        evaluacion("111", "ALTO", 0.9, {}, dias=0),
+        evaluacion("111", "BAJO", 0.2, {}, dias=30),
+        evaluacion("222", "ALTO", 0.9, {}, dias=0),
+        evaluacion("222", "MEDIO", 0.5, {}, dias=30),
+        evaluacion("333", "ALTO", 0.9, {}, dias=0),
+        evaluacion("333", "ALTO", 0.9, {}, dias=30),
+    ]
+    informe = calcular_kpis_desde_datos(filas, [intervencion("111")])
+    kpi = informe["kpi_cobertura_intervencion"]
+    assert kpi["denominador"] == 3
+    assert kpi["numerador"] == 1
+    assert kpi["valor"] == 33.3
+
+
 # --------------------------------------------------------------------------- #
 def test_kpi2_reduccion_del_nivel_de_riesgo():
     """El nivel de riesgo (ordinal) debe bajar entre la primera y la ultima evaluacion."""

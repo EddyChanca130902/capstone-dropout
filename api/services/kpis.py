@@ -126,10 +126,14 @@ def calcular_kpis_desde_datos(
     }
 
     # --- KPI 1: tasa de cobertura de intervencion ---------------------------
+    # "Detectados en alto riesgo" = estudiantes que estuvieron en ALTO en
+    # cualquier evaluacion, no solo en la ultima. Si se usara la ultima, un
+    # estudiante que mejoro tras la intervencion saldria del denominador y la
+    # cobertura bajaria justo cuando el sistema funciona.
     en_alto_riesgo = {
         dni
         for dni, filas in por_dni.items()
-        if str(filas[-1].get("nivel") or "").upper() == "ALTO"
+        if any(str(f.get("nivel") or "").upper() == "ALTO" for f in filas)
     }
     derivadas_en_alto = derivadas & en_alto_riesgo
     kpi1_num = float(len(derivadas_en_alto))
@@ -205,7 +209,7 @@ def calcular_kpis_desde_datos(
             "unidad": "%",
             "numerador": kpi1_num,
             "denominador": kpi1_den,
-            "formula": "(estudiantes derivados a acompanamiento / estudiantes detectados en alto riesgo) x 100",
+            "formula": "(estudiantes derivados a acompanamiento / estudiantes detectados en alto riesgo en alguna evaluacion) x 100",
             "disponible": kpi1_den > 0,
             "nota": None if kpi1_den > 0 else "Aun no hay estudiantes en riesgo alto registrados.",
         },

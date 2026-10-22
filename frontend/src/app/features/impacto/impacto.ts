@@ -84,7 +84,7 @@ export class Impacto implements OnInit {
         clave: 'kpi_cobertura_intervencion',
         titulo: 'Tasa de cobertura de intervención',
         concepto:
-          'Estudiantes derivados a acompañamiento sobre los detectados en alto riesgo.',
+          'Estudiantes derivados a acompañamiento sobre los detectados en alto riesgo en alguna evaluación (aunque después hayan mejorado).',
         valor: informe.kpi_cobertura_intervencion,
       },
       {
