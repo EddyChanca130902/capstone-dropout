@@ -25,7 +25,7 @@ Pirámide de cuatro niveles, con la proporción de implementación actual:
             /\   E2E en producción            6 pantallas · 0 errores de consola
            /  \  Carga y estrés (k6)         200 VUs · 15 934 requests · 0 % errores (local)
           /    \ Integración                 1 flujo completo contra Supabase real
-         /______\Unitarias                   59 pytest + 13 Vitest
+         /______\Unitarias                   71 pytest + 13 Vitest
 ```
 
 | Nivel | Objetivo | Herramienta | Entorno | Frecuencia |

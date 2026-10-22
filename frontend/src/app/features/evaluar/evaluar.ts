@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { ApiService } from '../../core/api.service';
 import { AvisosService } from '../../core/avisos.service';
-import { AREAS, Area, Estudiante, Prediccion } from '../../core/models';
+import { AREAS, Area, Estudiante, Evaluacion, Prediccion } from '../../core/models';
 import { Icon } from '../../shared/icon';
 import { RiskBadge } from '../../shared/risk-badge';
 
@@ -25,6 +25,7 @@ export class Evaluar {
   readonly cargando = signal(false);
   readonly error = signal<string | null>(null);
   readonly resultado = signal<Prediccion | null>(null);
+  readonly evaluacionGuardada = signal<Evaluacion | null>(null);
   readonly guardado = signal(false);
 
   readonly personal = this.fb.nonNullable.group({
@@ -91,7 +92,8 @@ export class Evaluar {
     try {
       const prediccion = await this.api.predecir(estudiante);
       this.resultado.set(prediccion);
-      await this.api.crearEvaluacion(estudiante);
+      const guardada = await this.api.crearEvaluacion(estudiante);
+      this.evaluacionGuardada.set(guardada);
       this.guardado.set(true);
       this.avisos.exito(
         'Evaluación guardada',
@@ -115,6 +117,7 @@ export class Evaluar {
 
   reiniciar(): void {
     this.resultado.set(null);
+    this.evaluacionGuardada.set(null);
     this.guardado.set(false);
     this.error.set(null);
     this.paso.set(1);

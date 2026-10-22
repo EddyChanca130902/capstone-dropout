@@ -1,11 +1,19 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { AvisosService } from '../../core/avisos.service';
 import { detalleDeError } from '../../core/errors';
-import { Intervencion, KpiInforme, KpiValor, traducirVariable } from '../../core/models';
+import {
+  CandidatoDerivacion,
+  Intervencion,
+  KpiInforme,
+  KpiValor,
+  traducirVariable,
+} from '../../core/models';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
+import { RiskBadge } from '../../shared/risk-badge';
 import { Skeleton } from '../../shared/skeleton';
 
 interface TarjetaKpi {
@@ -18,24 +26,27 @@ interface TarjetaKpi {
 @Component({
   selector: 'app-impacto',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, Icon, EmptyState, Skeleton],
+  imports: [FormsModule, Icon, EmptyState, Skeleton, RiskBadge],
   templateUrl: './impacto.html',
   styleUrl: './impacto.scss',
 })
 export class Impacto implements OnInit {
   private readonly api = inject(ApiService);
   private readonly avisos = inject(AvisosService);
+  private readonly ruta = inject(ActivatedRoute);
 
   readonly cargando = signal(true);
   readonly error = signal<string | null>(null);
   readonly informe = signal<KpiInforme | null>(null);
   readonly intervenciones = signal<Intervencion[]>([]);
+  readonly candidatos = signal<CandidatoDerivacion[]>([]);
   readonly guardando = signal(false);
   readonly errorForm = signal<string | null>(null);
   readonly exitoForm = signal<string | null>(null);
   readonly ultimoRegistro = signal<Intervencion | null>(null);
 
-  // Formulario de derivacion
+  // Formulario de derivacion: se elige entre los estudiantes ya evaluados.
+  readonly seleccion = signal('');
   dni = '';
   nombre = '';
   canal = 'TUTORIA';
@@ -45,20 +56,38 @@ export class Impacto implements OnInit {
   estado: Intervencion['estado'] = 'DERIVADA';
   mostrarFormulario = false;
 
+  readonly candidatoSeleccionado = computed<CandidatoDerivacion | null>(() => {
+    const id = this.seleccion() ? Number(this.seleccion()) : null;
+    if (id === null || Number.isNaN(id)) {
+      return null;
+    }
+    return this.candidatos().find((c) => Number(c.evaluacion_id) === id) ?? null;
+  });
+
   async ngOnInit(): Promise<void> {
     await this.cargar();
+    // Flujo evaluación -> derivación: si venimos del resultado de una
+    // evaluación, se abre el formulario con ese estudiante ya elegido.
+    const pedido = this.ruta.snapshot.queryParamMap.get('evaluacion');
+    const id = pedido ? Number(pedido) : NaN;
+    if (!Number.isNaN(id) && this.candidatos().some((c) => Number(c.evaluacion_id) === id)) {
+      this.mostrarFormulario = true;
+      this.elegirCandidato(String(id));
+    }
   }
 
   async cargar(): Promise<void> {
     this.cargando.set(true);
     this.error.set(null);
     try {
-      const [informe, intervenciones] = await Promise.all([
+      const [informe, intervenciones, candidatos] = await Promise.all([
         this.api.kpisImpacto(),
         this.api.listarIntervenciones({ limite: 100 }),
+        this.api.candidatosDerivacion().catch(() => ({ total: 0, datos: [] })),
       ]);
       this.informe.set(informe);
       this.intervenciones.set(intervenciones.datos);
+      this.candidatos.set(candidatos.datos);
     } catch (error) {
       const detalle =
         typeof error === 'object' && error !== null && 'error' in error
@@ -111,12 +140,35 @@ export class Impacto implements OnInit {
     ];
   }
 
+  etiquetaCandidato(candidato: CandidatoDerivacion): string {
+    const porcentaje = Math.round((candidato.probabilidad ?? 0) * 100);
+    const base = `${candidato.nivel} · ${candidato.dni} · ${candidato.nombre ?? 'Sin nombre'} · ${porcentaje} %`;
+    return candidato.derivado ? `${base} · ya derivado` : base;
+  }
+
+  elegirCandidato(valor: string): void {
+    this.seleccion.set(valor ?? '');
+    this.errorForm.set(null);
+    this.exitoForm.set(null);
+    const candidato = this.candidatoSeleccionado();
+    this.dni = candidato?.dni ?? '';
+    this.nombre = candidato?.nombre ?? '';
+  }
+
   async derivar(): Promise<void> {
     this.errorForm.set(null);
     this.exitoForm.set(null);
-    if (this.dni.trim().length < 5) {
-      this.errorForm.set('El documento de identidad debe tener al menos 5 caracteres.');
-      this.avisos.error('Falta el DNI', 'El documento de identidad debe tener al menos 5 caracteres.');
+    const candidato = this.candidatoSeleccionado();
+    if (!candidato) {
+      this.errorForm.set('Selecciona un estudiante evaluado: la derivación nace de una evaluación.');
+      this.avisos.error('Falta el estudiante', 'Elige a quién derivas de la lista de evaluados.');
+      return;
+    }
+    if (candidato.derivado) {
+      this.errorForm.set(
+        `${candidato.dni} ya tiene una derivación registrada: cambia su estado en la tabla.`,
+      );
+      this.avisos.error('Ya está derivado', `${candidato.dni} ya tiene una derivación.`);
       return;
     }
     if (this.accion.trim().length < 3) {
@@ -127,20 +179,24 @@ export class Impacto implements OnInit {
     this.guardando.set(true);
     try {
       const registrada = await this.api.crearIntervencion({
-        dni: this.dni.trim(),
-        nombre: this.nombre.trim() || null,
+        dni: candidato.dni,
+        nombre: candidato.nombre ?? null,
+        evaluacion_id: candidato.evaluacion_id,
+        fecha_deteccion: candidato.creado_en ?? null,
         canal: this.canal as Intervencion['canal'],
         accion: this.accion.trim(),
         responsable: this.responsable.trim() || null,
         estado: this.estado,
         fecha_inicio: this.fechaInicio ? new Date(this.fechaInicio).toISOString() : null,
-        variables_en_alerta: [],
+        variables_en_alerta: candidato.variables_en_alerta,
       });
       this.ultimoRegistro.set(registrada);
       this.exitoForm.set(
-        `Derivación registrada (${registrada.dni}). Ya se refleja en los KPI de impacto.`,
+        `Derivación registrada (${registrada.dni}) desde la evaluación #${candidato.evaluacion_id}. ` +
+          'Ya se refleja en los KPI de impacto.',
       );
-      this.avisos.exito('Derivación registrada', `${this.dni.trim()} derivado a acompañamiento.`);
+      this.avisos.exito('Derivación registrada', `${candidato.dni} derivado a acompañamiento.`);
+      this.seleccion.set('');
       this.dni = '';
       this.nombre = '';
       this.accion = '';

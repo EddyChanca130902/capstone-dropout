@@ -37,7 +37,7 @@ Por eso cada indicador de este plan responde a una pregunta «¿qué afirma Earl
 | **A4** | **Resuelve el problema de gestión: prioriza y ahorra tiempo** | **KPI 4** tiempo de respuesta · **I-O5** tiempo de registro | Registro de derivaciones + cronómetro del formulario | ⏳ pendiente de uso real | Partes 1 y 9 |
 | **A5** | **Es seguro con datos de estudiantes** | **I-O7** accesos a datos ajenos · **I-O8** disponibilidad | `scripts/verify_supabase.py` (2 usuarios reales) | **0 accesos ajenos** · 0 % de error en 15 934 requests | Parte 8 («Seguridad») |
 | **A6** | **Cada decisión es auditable** | **I-O9** trazabilidad completa de la evaluación | SQL sobre `evaluaciones` (`entradas`, `modelo_version`, `user_id`, marcas de tiempo) | **100 %** de las filas | Parte 3 («Arquitectura») |
-| **A7** | **Se puede mantener y reproducir** | **Cobertura de pruebas** por nível · **Integración en CI** | `reports/Pruebas.md`, `.github/workflows/ci.yml` | **72 tests** · CI en cada push | Parte 7 («Calidad») |
+| **A7** | **Se puede mantener y reproducir** | **Cobertura de pruebas** por nível · **Integración en CI** | `reports/Pruebas.md`, `.github/workflows/ci.yml` | **84 tests** · CI en cada push | Parte 7 («Calidad») |
 | **A8** | **Aguanta la carga real de la institución** | **I-T8** throughput · **I-T9** latencia p95 · **I-O6** latencia de la API | 4 escenarios de k6 (hasta 200 VUs) | **371 req/s** · p95 **112 ms** · 0 % de errores | Partes 3 y 7 |
 | **A9** | **Es usable** en la consulta, no un trámite** | **I-O5** tiempo de registro · usabilidad (SUS, bloque 3 del cuestionario) | Cronómetro del formulario + cuestionario | ⏳ pendiente de uso real | Parte 6 («Demo») |
 
@@ -55,7 +55,7 @@ Las preguntas del jurado ya son previsibles. Cada una tiene un KPI detrás que l
 | «¿Y si un orientador ve datos de otro?» | Aislamiento en la base de datos, verificado con dos usuarios reales | **I-O7 = 0** |
 | «¿Qué pasa si un estudiante señala de que está registrado?» | Minimización, RLS, trazabilidad y política pública; la decisión sigue siendo humana | **I-O9** + política de privacidad |
 | ¿¿Aguanta si se conectan todos los orientadores?» | 371 req/s con 200 VUs y 0 % de errores | **I-T8, I-T9** |
-| «¿Cómo se mantiene esto?» | 72 tests, integración contra Supabase real, E2E en producción y CI en cada push | **A7** |
+| «¿Cómo se mantiene esto?» | 84 tests, integración contra Supabase real, E2E en producción y CI en cada push | **A7** |
 | «¿Dónde está el modelo entrenado? ¿No es de la UPN» | Declarado como proxy en el informe, la interfaz y la política; hay un protocolo de validación con datos propios | **KPI 2 y KPI 3** (tras el piloto) |
 
 ### 1 bis.3 La regla que se sigue en la exposición
@@ -189,14 +189,30 @@ Total de casos en riesgo
 
 ```
 Formulario de evaluación
-   → POST /api/v1/evaluaciones   (guarda entradas + factores en alerta)
-        → GET  /api/v1/kpis/impacto  (calcula los 4 KPI al vuelo)
-             → Vista /impacto  (4 tarjetas + registro de derivaciones)
+   → POST /api/v1/evaluaciones              (guarda entradas, nivel y variables en alerta)
+        → GET  /api/v1/evaluaciones/candidatos
+             (última evaluación de cada DNI; ALTO y MEDIO primero; marca los ya derivados)
+                  → POST /api/v1/intervenciones   (con evaluacion_id: trazabilidad)
+                       → GET  /api/v1/kpis/impacto (calcula los 4 KPI al vuelo)
+                            → Vista /impacto  (4 tarjetas + registro de derivaciones)
 ```
 
 Para que los KPI tengan datos hacen falta dos acciones del orientador:
 1. **Evaluar** al estudiante (el sistema guarda la evaluación y sus variables en alerta).
-2. **Registrar la derivación** a Acompanañamiento (con la fecha de inicio de la acción).
+2. **Derivar** a Acompañamiento (con la fecha de inicio de la acción).
+
+La derivación no se teclea a ciegas: **se elige entre los estudiantes ya evaluados**.
+El selector muestra la última evaluación de cada estudiante, ordena ALTO antes que MEDIO
+y deshabilita a quien ya tiene una derivación activa. Al guardar, la intervención queda
+ligada al `evaluacion_id` que la originó y hereda la fecha de detección y las variables en
+alerta, de modo que el caso se puede auditar de extremo a extremo (evaluación → derivación
+→ resultado). Reglas asociadas:
+
+- Si el estudiante ya tiene una derivación **activa** (`DERIVADA` o `EN_PROCESO`), la API
+  responde **409** y pide actualizar el estado en lugar de duplicar el registro.
+- Si la derivación anterior está **`CERRADA`**, se admite un nuevo ciclo de acompañamiento.
+- Al terminar una evaluación en **ALTO o MEDIO**, el botón *Derivar a acompañamiento*
+  abre `/impacto` con ese estudiante ya seleccionado (flujo evaluación → derivación).
 
 ---
 

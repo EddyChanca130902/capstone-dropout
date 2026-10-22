@@ -104,7 +104,7 @@ El servicio se expone con un usuario de solo lectura y sin la clave de servicio;
 ### Sobre calidad y rendimiento
 
 **P. ¿Cómo sé que el sistema funciona y no solo que compila?**
-Porque hay 72 pruebas automatizadas (59 de backend, 13 de frontend), un test de integración que hace login, crea, lista, corrige y borra contra Supabase real, un recorrido end-to-end con navegador real sobre la versión desplegada con captura de cada pantalla y 0 errores de consola, y cuatro escenarios de carga con k6 con umbrales de aceptación.
+Porque hay 84 pruebas automatizadas (71 de backend, 13 de frontend), un test de integración que hace login, crea, lista, corrige y borra contra Supabase real, un recorrido end-to-end con navegador real sobre la versión desplegada con captura de cada pantalla y 0 errores de consola, y cuatro escenarios de carga con k6 con umbrales de aceptación.
 
 **P. ¿Cuál fue el error más importante que encontraste?**
 Que 6 de las 13 variables del formulario no influían en la predicción. Se enviaban como `"1"/"0"` y códigos numéricos de carrera, mientras el encoder esperaba `"Male"/"Female"` y nombres; como el encoder ignora lo desconocido, las descartaba **sin error**. El modelo "funcionaba" y las pruebas también pasaban, porque nadie comprobó que las variables influyeran. La corrección fue el mapeo canónico, la imputación por medianas de las 23 variables no capturadas, y sobre todo un test de regresión que recorre los 12 campos y exige que cada uno mueva la probabilidad. Es la respuesta a por qué el plan de calidad insiste en verificar el comportamiento, no solo la ejecución.

@@ -121,6 +121,95 @@ def eliminar(
     return bool(respuesta.data)
 
 
+NIVELES_ORDEN = {"ALTO": 0, "MEDIO": 1, "BAJO": 2}
+
+
+def ultimas_por_dni(filas: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Se queda con la evaluacion mas reciente de cada DNI."""
+    por_dni: dict[str, dict[str, Any]] = {}
+    for fila in filas:
+        dni = str(fila.get("dni") or "").strip()
+        if not dni:
+            continue
+        actual = por_dni.get(dni)
+        if actual is None or _fecha(fila) >= _fecha(actual):
+            por_dni[dni] = fila
+    return list(por_dni.values())
+
+
+def candidatos(
+    config: Settings,
+    *,
+    access_token: str | None = None,
+    user_id: str | None = None,
+    incluir_bajo: bool = False,
+) -> list[dict[str, Any]]:
+    """Estudiantes evaluados que pueden derivarse a acompanamiento.
+
+    La derivacion nace de una evaluacion concreta: cada candidato lleva el
+    `evaluacion_id` que la origino, para que quede trazable. Se ordenan por
+    nivel (ALTO antes que MEDIO) y, dentro del nivel, por probabilidad.
+    """
+    filas = listar(config, access_token=access_token, user_id=user_id, limite=1000, orden="desc")
+    ultimas = ultimas_por_dni(filas)
+
+    derivados: dict[str, dict[str, Any]] = {}
+    if columnas_tabla(config, "intervenciones"):
+        cliente = cliente_usuario(config, access_token)
+        respuesta = cliente.table("intervenciones").select(
+            "dni,estado,fecha_derivacion,creado_en"
+        ).execute()
+        for fila in respuesta.data or []:
+            dni = str(fila.get("dni") or "").strip()
+            if not dni:
+                continue
+            actual = derivados.get(dni)
+            if actual is None or _fecha_intervencion(fila) >= _fecha_intervencion(actual):
+                derivados[dni] = fila
+
+    salida: list[dict[str, Any]] = []
+    for fila in ultimas:
+        nivel = str(fila.get("nivel") or "").strip().upper()
+        if nivel == "BAJO" and not incluir_bajo:
+            continue
+        dni = str(fila.get("dni") or "").strip()
+        derivacion = derivados.get(dni)
+        salida.append(
+            {
+                "evaluacion_id": fila.get("id"),
+                "dni": dni,
+                "nombre": fila.get("nombre"),
+                "area_estudios": fila.get("area_estudios"),
+                "nivel": nivel,
+                "probabilidad": fila.get("probabilidad"),
+                "creado_en": fila.get("creado_en") or fila.get("created_at"),
+                "variables_en_alerta": list(fila.get("variables_en_alerta") or []),
+                "factores_clave": [
+                    {
+                        "variable": f.get("variable"),
+                        "contribucion": f.get("contribucion"),
+                        "direccion": f.get("direccion"),
+                    }
+                    for f in (fila.get("factores_clave") or [])[:3]
+                    if isinstance(f, dict)
+                ],
+                "derivado": bool(derivacion)
+                and str((derivacion or {}).get("estado") or "").upper()
+                in ("DERIVADA", "EN_PROCESO"),
+                "intervencion_estado": (derivacion or {}).get("estado"),
+                "intervencion_fecha": (derivacion or {}).get("fecha_derivacion"),
+            }
+        )
+
+    salida.sort(
+        key=lambda c: (
+            NIVELES_ORDEN.get(str(c["nivel"]), 9),
+            -float(c.get("probabilidad") or 0),
+        )
+    )
+    return salida
+
+
 def resumen(
     config: Settings,
     *,
@@ -171,3 +260,7 @@ def resumen(
 
 def _fecha(fila: dict[str, Any]) -> str:
     return str(fila.get("creado_en") or fila.get("created_at") or "")
+
+
+def _fecha_intervencion(fila: dict[str, Any]) -> str:
+    return str(fila.get("fecha_derivacion") or fila.get("creado_en") or "")

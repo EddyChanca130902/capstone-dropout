@@ -21,14 +21,45 @@
       tiempo de respuesta no se pueden calcular.
     </p>
     <div class="rejilla">
-      <div>
-        <label for="dni">DNI del estudiante</label>
-        <input id="dni" [(ngModel)]="dni" placeholder="70123456" />
+      <div class="ancho">
+        <label for="estudiante">Estudiante evaluado</label>
+        <select id="estudiante" [ngModel]="seleccion()" (ngModelChange)="elegirCandidato($event)">
+          <option value="">— Elige un estudiante detectado en riesgo alto o medio —</option>
+          @for (c of candidatos(); track c.evaluacion_id) {
+            <option [value]="c.evaluacion_id" [disabled]="c.derivado">
+              {{ etiquetaCandidato(c) }}
+            </option>
+          }
+        </select>
+        <p class="ayuda">
+          Solo aparecen estudiantes ya evaluados. La derivación queda ligada a la evaluación que la
+          originó, de modo que el caso se puede auditar de extremo a extremo.
+        </p>
       </div>
-      <div>
-        <label for="nombre">Nombre</label>
-        <input id="nombre" [(ngModel)]="nombre" placeholder="Nombre y apellidos" />
-      </div>
+      @if (candidatoSeleccionado(); as c) {
+        <div class="ficha ancho">
+          <app-risk-badge [nivel]="c.nivel" />
+          <div class="ficha-datos">
+            <strong>{{ c.nombre || 'Sin nombre' }}</strong>
+            <span class="ficha-sub">
+              DNI {{ c.dni }} · evaluación #{{ c.evaluacion_id }} · {{ fecha(c.creado_en) }}
+            </span>
+          </div>
+          @if (c.factores_clave.length) {
+            <div class="factores">
+              <span class="etiqueta-factores">Por qué el modelo lo marcó:</span>
+              @for (f of c.factores_clave; track f.variable) {
+                <span class="factor">{{ traducirVariable(f.variable) }}</span>
+              }
+            </div>
+          }
+        </div>
+      } @else if (!candidatos().length) {
+        <p class="aviso ancho">
+          No hay estudiantes evaluados en riesgo alto o medio. Evalúa a un estudiante para poder
+          derivarlo.
+        </p>
+      }
       <div>
         <label for="canal">Canal</label>
         <select id="canal" [(ngModel)]="canal">
@@ -156,6 +187,7 @@
           <tr>
             <th>DNI</th>
             <th>Estudiante</th>
+            <th>Evaluación</th>
             <th>Derivación</th>
             <th>Inicio</th>
             <th>Canal</th>
@@ -168,6 +200,14 @@
             <tr>
               <td>{{ intervencion.dni }}</td>
               <td class="nombre">{{ intervencion.nombre ?? '—' }}</td>
+              <td class="evaluacion">
+                @if (intervencion.evaluacion_id) {
+                  <span class="chip-eval">#{{ intervencion.evaluacion_id }}</span>
+                  <span class="eval-fecha">{{ fecha(intervencion.fecha_deteccion) }}</span>
+                } @else {
+                  <span class="eval-fecha">—</span>
+                }
+              </td>
               <td>{{ fecha(intervencion.fecha_derivacion) }}</td>
               <td>{{ fecha(intervencion.fecha_inicio) }}</td>
               <td>{{ intervencion.canal ?? '—' }}</td>

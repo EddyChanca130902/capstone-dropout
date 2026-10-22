@@ -144,6 +144,94 @@ textarea:focus {
   word-break: break-word;
 }
 
+.ayuda {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0.35rem 0 0.9rem;
+  line-height: 1.45;
+}
+
+.ficha {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--brand);
+  border-radius: var(--radio-sm);
+  background: #f8fbfb;
+  margin-bottom: 0.9rem;
+}
+
+.ficha-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.ficha-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.factores {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  width: 100%;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--line);
+}
+
+.etiqueta-factores {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.factor {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+}
+
+.aviso {
+  font-size: 0.84rem;
+  color: var(--muted);
+  background: #f8fbfb;
+  border: 1px dashed var(--line);
+  border-radius: var(--radio-sm);
+  padding: 0.7rem 0.85rem;
+  margin-bottom: 0.9rem;
+}
+
+.evaluacion {
+  white-space: nowrap;
+}
+
+.chip-eval {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 0.12rem 0.42rem;
+  border-radius: 6px;
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+  margin-right: 0.35rem;
+}
+
+.eval-fecha {
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
 .nota {
   font-size: 0.76rem;
   color: #93a3ac;

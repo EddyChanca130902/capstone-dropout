@@ -144,6 +144,10 @@
 
 > *La respuesta llega en milisegundos. En el servidor, la inferencia del modelo tarda 0,97 milisegundos: el resto es red.*
 
+**[Si el resultado es ALTO o MEDIO: clic en "Derivar a acompañamiento"]**
+
+> *Este es el flujo completo: al terminar la evaluación, si el modelo lo marca en riesgo alto o medio, el propio resultado permite derivarlo. Me lleva a la pantalla de derivaciones con ese estudiante ya elegido —no se teclea el DNI a ciegas: se elige entre los estudiantes ya evaluados— y la derivación queda ligada a la evaluación que la originó, con sus variables en alerta. Así el caso se puede auditar de extremo a extremo.*
+
 **[Clic: "Historial"]**
 
 > *Y aquí queda registrado todo: fecha, estudiante, área, probabilidad, nivel. Se puede filtrar por área y por nivel, y se puede corregir el nivel manualmente —con la acción registrada—, porque el orientador tiene la última palabra.*
@@ -158,7 +162,7 @@
 
 **[DIAPOSITIVA 7: pirámide de pruebas con cifras]**
 
-> *Sobre calidad: el proyecto tiene **72 pruebas automatizadas** —59 de backend con pytest y 13 de frontend con Vitest—, un test de integración que hace login, crea, lista, corrige y borra contra Supabase real, un recorrido end-to-end con navegador real contra **esta misma versión desplegada**, con captura de cada pantalla y cero errores de consola.*
+> *Sobre calidad: el proyecto tiene **84 pruebas automatizadas** —71 de backend con pytest y 13 de frontend con Vitest—, un test de integración que hace login, crea, lista, corrige y borra contra Supabase real, un recorrido end-to-end con navegador real contra **esta misma versión desplegada**, con captura de cada pantalla y cero errores de consola.*
 >
 > *Y cuatro escenarios de carga con k6. En local, con 200 usuarios virtuales: **371 peticiones por segundo, p95 de 112 milisegundos y cero errores**, en 15 934 peticiones. En el despliegue real, con el plan gratuito de Render, la cifra baja a 44 por segundo: la causa es la infraestructura —memoria de 0,5 gigabytes, CPU compartida y 250 milisegundos de red hasta Oregon—, no el código, porque la inferencia en ese mismo servidor sigue tardando 0,97 milisegundos.*
 >
@@ -271,14 +275,15 @@ que los KPI **distinguen** entre casos.
 
 ### Si quieres añadir el paso de registrar una derivación en vivo (30 s)
 
-**[Clic: "Registrar derivación"]**
+**[Clic: "Nueva derivación"]**
 
-> *Esto es lo que hace el orientador cuando detecta un caso. Lo registro aquí, con la
-> fecha de inicio de la acción, y el KPI de tiempo de respuesta se recalcula al
-> instante.*
+> *El selector solo muestra estudiantes ya evaluados, ordenados por riesgo y con su probabilidad. Los que ya están en acompañamiento aparecen bloqueados, para no duplicar el caso.*
 
-Rellena un caso, pulsa **Registrar derivación** y comprueba que la tarjeta de cobertura
-se mueve. *(Requiere que el usuario tenga al menos una evaluación en ALTO.)*
+**[Elegir un estudiante en ALTO, escribir la acción y pulsar "Registrar derivación"]**
+
+> *Al guardar, la fila queda con el número de evaluación de origen y la fecha de detección, y los KPI de cobertura y de tiempo de respuesta se recalculan al instante.*
+
+> *(Si se intenta derivar a alguien que ya tiene una derivación activa, la API responde 409 y pide actualizar el estado en lugar de duplicar el registro.)*
 
 ### Frases de cierre de la parte 9
 

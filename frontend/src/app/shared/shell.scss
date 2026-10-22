@@ -203,9 +203,9 @@
 }
 
 .contenido {
-  padding: 2.1rem 2.3rem 3rem;
-  max-width: 1300px;
+  padding: 2.1rem clamp(1.4rem, 2.6vw, 3rem) 3rem;
   width: 100%;
+  min-width: 0;
 }
 
 @media (max-width: 900px) {

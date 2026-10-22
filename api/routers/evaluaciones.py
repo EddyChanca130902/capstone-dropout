@@ -82,6 +82,26 @@ def listar_evaluaciones(
     return {"total": len(filas), "datos": filas}
 
 
+@router.get("/candidatos", summary="Estudiantes evaluados que pueden derivarse")
+def listar_candidatos(
+    incluir_bajo: bool = Query(False, description="Incluye tambien a los evaluados en riesgo bajo"),
+    config: Settings = Depends(obtener_config),
+    usuario: UsuarioActual = Depends(usuario_actual),
+) -> dict[str, Any]:
+    """Ultima evaluacion de cada estudiante con el `evaluacion_id` que la origino.
+
+    Es la fuente del selector de derivacion: solo se deriva a quien ya fue
+    evaluado, y la derivacion queda ligada a esa evaluacion concreta.
+    """
+    datos = repo.candidatos(
+        config,
+        access_token=usuario.token,
+        user_id=usuario.id,
+        incluir_bajo=incluir_bajo,
+    )
+    return {"total": len(datos), "datos": datos}
+
+
 @router.get("/{evaluacion_id}", summary="Detalle de una evaluacion")
 def obtener_evaluacion(
     evaluacion_id: int,

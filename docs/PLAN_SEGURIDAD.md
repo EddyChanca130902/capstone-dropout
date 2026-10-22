@@ -147,7 +147,7 @@ Ver [`DEPLOY.md`](../DEPLOY.md). Resumen:
 
 ```powershell
 Invoke-RestMethod https://<api>/health                     # estado: ok
-.\dropout-env\Scripts\python.exe -m pytest -q               # 59 tests
+.\dropout-env\Scripts\python.exe -m pytest -q               # 71 tests
 .\dropout-env\Scripts\python.exe scripts\verify_supabase.py # RLS y esquema
 k6 run k6/smoke.js                                         # 0 errores
 ```

@@ -90,7 +90,7 @@ Durante el desarrollo de EarlySign se utilizó una herramienta de inteligencia a
 
 ### 3.3 Verificación y responsabilidad
 
-Todo el código generado o sugerido por la herramienta fue **revisado, ejecutado y medido** antes de aceptarse. La responsabilidad del software, de sus resultados y de su documentación es del autor. Ningún fragmento se ha incorporado sin comprobación: el proyecto incluye 72 pruebas automatizadas, un recorrido end-to-end con navegador real y un registro de 17 incidencias detectadas y corregidas, que es la evidencia de ese proceso de verificación.
+Todo el código generado o sugerido por la herramienta fue **revisado, ejecutado y medido** antes de aceptarse. La responsabilidad del software, de sus resultados y de su documentación es del autor. Ningún fragmento se ha incorporado sin comprobación: el proyecto incluye 84 pruebas automatizadas, un recorrido end-to-end con navegador real y un registro de 17 incidencias detectadas y corregidas, que es la evidencia de ese proceso de verificación.
 
 ---
 
@@ -102,7 +102,7 @@ La evaluación de **T1** no dejó observaciones formales registradas. Aun así, 
 |---|---|---|---|
 | 1 | El prototipo era un script de Streamlit con persistencia local en SQLite, sin autenticar | Arquitectura de tres capas con FastAPI, Supabase y Angular, con autenticación y aislamiento por usuario | `api/`, `frontend/`, `supabase/migrations/` |
 | 2 | El predictor enviaba las variables categóricas con códigos en vez de etiquetas, y **6 de 13 variables no influían** en el resultado sin producir ningún error | Corrección del contrato formulario↔modelo, imputación por medianas del entrenamiento y test de regresión que lo blinda | `src/predictor.py`, `tests/test_predictor.py` |
-| 3 | No existía ninguna prueba automatizada | 72 pruebas unitarias, integración contra Supabase real, recorrido E2E en producción y 4 escenarios de carga con k6 | `tests/`, `frontend/src/**/*.spec.ts`, `k6/`, `.github/workflows/ci.yml` |
+| 3 | No existía ninguna prueba automatizada | 84 pruebas unitarias, integración contra Supabase real, recorrido E2E en producción y 4 escenarios de carga con k6 | `tests/`, `frontend/src/**/*.spec.ts`, `k6/`, `.github/workflows/ci.yml` |
 | 4 | El modelo y su preprocesado se guardaban sin perfil de imputación: el resultado dependía de valores hardcodeados | `models/defaults.json` generado por script reproducible desde el dataset | `scripts/build_defaults.py` |
 | 5 | No había control de acceso ni trazabilidad de las evaluaciones | RLS en la base de datos, `user_id`, `modelo_version` y `entradas` en cada fila | `supabase/migrations/0001_init.sql` |
 | 6 | Sin documentación de despliegue ni continuidad operativa | Dockerfile, blueprint de Render, configuración de Vercel, guía de despliegue e informe de pruebas | `Dockerfile`, `render.yaml`, `frontend/vercel.json`, `DEPLOY.md`, `reports/Pruebas.md` |
@@ -121,5 +121,5 @@ La evaluación de **T1** no dejó observaciones formales registradas. Aun así, 
 | Aislar datos por usuario | RLS en la base de datos | `scripts/verify_supabase.py` |
 | Ser transparente | Política de privacidad pública | Ruta `/privacidad` |
 | Ser honesto sobre el modelo | Limitaciones enumeradas en el informe y en la UI | `INFORME.md` §3.3 y §6 |
-| Verificar antes de afirmar | 72 tests + E2E + k6 + mediciones | `reports/Pruebas.md` |
+| Verificar antes de afirmar | 84 tests + E2E + k6 + mediciones | `reports/Pruebas.md` |
 | Declarar el uso de IA | Sección 3 de este documento | Este documento |

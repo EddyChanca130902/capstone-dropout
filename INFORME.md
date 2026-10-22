@@ -33,7 +33,7 @@ El sistema se sostiene sobre un modelo de aprendizaje automático (XGBoost) entr
 | F1 / PR-AUC / Brier | 0.818 / 0.901 / 0.092 |
 | Latencia de inferencia | **0.34 ms** (0.97 ms medidos en el servidor de producción) |
 | Capacidad de la API | **371 req/s** con 200 VUs (0 % de errores) |
-| Pruebas automatizadas | **72** unitarias + integración + E2E + carga |
+| Pruebas automatizadas | **84** unitarias + integración + E2E + carga |
 | Corrección de un defecto que invalidaba el modelo | 6 de 13 variables del formulario **no influían** en la predicción |
 
 ---
@@ -234,7 +234,7 @@ Streamlit + SQLite local      ──►  FastAPI + Supabase + Angular
 Predicción sin persistencia         Persistencia con RLS y auditoría
 1 notebook de modelado              2 notebooks + scripts reproducibles
 Sin autenticación                   Supabase Auth + JWT verificado
-Sin pruebas automatizadas            72 tests + carga + E2E
+Sin pruebas automatizadas            84 tests + carga + E2E
 ```
 
 ### 8.2 Metodología de modelado (CRISP-DM adaptada)
@@ -255,7 +255,7 @@ Pirámide de pruebas con 4 niveles (ver [Plan de calidad](docs/PLAN_CALIDAD.md))
         /\        E2E en producción (6 pantallas, 0 errores de consola)
        /  \       Carga y estrés (k6: 200 VUs)
       /    \      Integración contra Supabase real
-     /______\     Unitarias (59 pytest + 13 Vitest)
+     /______\     Unitarias (71 pytest + 13 Vitest)
 ```
 
 ---
@@ -267,7 +267,7 @@ Pirámide de pruebas con 4 niveles (ver [Plan de calidad](docs/PLAN_CALIDAD.md))
 ```
 Angular 22 (Vercel)  ──HTTPS + Bearer JWT──►  FastAPI (Render, Docker)
    login · panel · evaluar                      │
-   historial · privacidad                       ├── services/model.py   singleton .joblib
+   historial · impacto · privacidad             ├── services/model.py   singleton .joblib
                                                 ├── services/supabase.py  PostgREST (keep-alive)
                                                 ├── core/security.py    JWT con JWKS cacheado
                                                 └── core/sesion_cache.py cache 60 s
@@ -294,6 +294,27 @@ evaluaciones (
 )
 -- Índices: (user_id, creado_en DESC), dni, nivel
 -- RLS: 4 políticas sobre auth.uid() = user_id
+
+intervenciones (
+  id                  bigint identity PRIMARY KEY,
+  user_id             uuid NOT NULL DEFAULT auth.uid(),
+  evaluacion_id       bigint REFERENCES evaluaciones(id) ON DELETE SET NULL, -- evaluación que originó la derivación
+  dni                 text NOT NULL,
+  nombre              text,
+  fecha_deteccion     timestamptz NOT NULL,   -- se hereda de la evaluación
+  fecha_derivacion    timestamptz NOT NULL DEFAULT now(),
+  fecha_inicio        timestamptz,            -- inicio real de la acción (KPI 4)
+  responsable         text,
+  canal               text,                   -- TUTORIA | ORIENTACION | BECATEO | DERIVACION | OTRO
+  accion              text,
+  estado              text NOT NULL CHECK (estado IN ('DERIVADA','EN_PROCESO','CERRADA')),
+  variables_en_alerta jsonb NOT NULL DEFAULT '[]',  -- copia de lo que el modelo marcó
+  resultado           text,
+  creado_en           timestamptz NOT NULL DEFAULT now()
+)
+-- Índices: (user_id, fecha_derivacion DESC), dni, estado
+-- Regla: una evaluación origina como máximo una derivación; un estudiante no
+-- puede tener dos derivaciones activas (la API responde 409).
 ```
 
 ### 9.3 API
@@ -307,7 +328,11 @@ evaluaciones (
 | `POST` | `/api/v1/predict` | opcional | Infiere **sin persistir** (usado por k6) |
 | `POST` | `/api/v1/evaluaciones` | ✅ | Infiere y guarda |
 | `GET` | `/api/v1/evaluaciones` | ✅ | Historial paginado y filtrable |
+| `GET` | `/api/v1/evaluaciones/candidatos` | ✅ | Última evaluación por DNI (ALTO/MEDIO primero) para el selector de derivación |
 | `GET/PATCH/DELETE` | `/api/v1/evaluaciones/{id}` | ✅ | Detalle, corrección, borrado |
+| `POST` | `/api/v1/intervenciones` | ✅ | Registra la derivación ligada a `evaluacion_id` (409 si ya está activa) |
+| `GET/PATCH/DELETE` | `/api/v1/intervenciones/{id}` | ✅ | Lista, cambia de estado, borra |
+| `GET` | `/api/v1/kpis/impacto` | ✅ | Los 4 KPI de impacto con fórmula y numerador/denominador |
 | `GET` | `/api/v1/dashboard/resumen` | ✅ | Indicadores del panel |
 
 ### 9.4 Interfaz de usuario
@@ -318,6 +343,7 @@ evaluaciones (
 | `/panel` | 4 indicadores, distribución por nivel, riesgo por área, tabla de recientes |
 | `/evaluar` | Formulario de 2 pasos con indicador de progreso, validación en cliente y resultado con semáforo |
 | `/historial` | Filtros por área y nivel, corrección manual del nivel, borrado con confirmación |
+| `/impacto` | Los 4 KPI de impacto y las derivaciones: se elige entre los estudiantes ya evaluados y la derivación queda ligada a su evaluación |
 | `/privacidad` | Política completa, accesible sin autenticación |
 
 Estados implementados: carga (esqueletos), vacío (con acción), error (con reintento), hover y confirmación (toasts).
@@ -333,7 +359,7 @@ El historial de 11 commits documenta la trazabilidad del proyecto:
 | H1 · Análisis y prototipo | EDA, 3 modelos comparados, dashboard Streamlit | `notebooks/`, `reports/figures/` |
 | H2 · Corrección del núcleo | Codificación canónica, imputación por medianas, tests de regresión | `src/predictor.py`, `tests/test_predictor.py` |
 | H3 · Migración de arquitectura | FastAPI, Supabase, RLS, Angular, k6 | `api/`, `frontend/`, `k6/`, `supabase/` |
-| H4 · Calidad y rendimiento | Cache del JWKS, ruta rápida, caché de sesiones, 72 tests | `reports/Pruebas.md` |
+| H4 · Calidad y rendimiento | Cache del JWKS, ruta rápida, caché de sesiones, 84 tests | `reports/Pruebas.md` |
 | H5 · Despliegue | Docker, Render, Vercel, CI | `Dockerfile`, `render.yaml`, `frontend/vercel.json`, `.github/` |
 | H6 · Rediseño de interfaz | Privacidad, empty/loading states, hover, iconos SVG | `frontend/src/app/shared/`, `features/privacidad/` |
 | H7 · Documentación de evaluación | Informes, planes, guion de sustentación | `INFORME.md`, `docs/` |
@@ -371,7 +397,7 @@ Cada apartado del informe se corresponde con ficheros verificables del repositor
 | Ámbito | Resultado | Evidencia |
 |---|---|---|
 | Modelo | AUC 0.934, recall 0.831 | `notebooks/02_modeling.ipynb` |
-| Pruebas unitarias | 72 tests, 0 fallos | `reports/Pruebas.md` |
+| Pruebas unitarias | 84 tests, 0 fallos | `reports/Pruebas.md` |
 | Carga | 371 req/s con 200 VUs, p95 112 ms | `reports/Pruebas.md` |
 | Producción | 44 req/s, p95 5.7 s, 3.2 % de errores (límite del plan gratuito) | `reports/Pruebas.md` |
 | E2E | 6 pantallas, 0 errores de consola | Capturas de Playwright |

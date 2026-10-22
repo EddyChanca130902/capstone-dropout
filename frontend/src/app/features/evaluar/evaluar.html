@@ -160,6 +160,15 @@
         }
       </p>
       <div class="acciones">
+        @if (r.nivel !== 'BAJO' && evaluacionGuardada(); as guardada) {
+          <a
+            class="derivar"
+            [routerLink]="['/impacto']"
+            [queryParams]="{ evaluacion: guardada.id }"
+          >
+            <app-icon nombre="derecha" [size]="15" /> Derivar a acompañamiento
+          </a>
+        }
         <button type="button" class="secundario" (click)="reiniciar()">
           <app-icon nombre="mas" [size]="15" /> Evaluar a otro estudiante
         </button>

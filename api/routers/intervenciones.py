@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -9,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from api.core.config import Settings, obtener_config
 from api.core.security import UsuarioActual, usuario_actual
 from api.schemas.intervencion import IntervencionIn, IntervencionOut, IntervencionPatch
+from api.services import evaluaciones as repo_evaluaciones
 from api.services.supabase import cliente_usuario, columnas_tabla, filtrar_columnas
 
 router = APIRouter(prefix="/api/v1/intervenciones", tags=["intervenciones"])
@@ -25,6 +27,14 @@ def _sin_tabla() -> HTTPException:
         status.HTTP_503_SERVICE_UNAVAILABLE,
         "La tabla de intervenciones no existe. Aplica supabase/migrations/0002_intervenciones.sql",
     )
+
+
+def _serializable(fila: dict[str, Any]) -> dict[str, Any]:
+    """PostgREST solo acepta JSON: las fechas viajan como ISO-8601."""
+    return {
+        clave: (valor.isoformat() if isinstance(valor, datetime) else valor)
+        for clave, valor in fila.items()
+    }
 
 
 @router.post(
@@ -55,7 +65,50 @@ def crear_intervencion(
         "variables_en_alerta": datos.variables_en_alerta,
         "resultado": datos.resultado,
     }
-    fila = filtrar_columnas({k: v for k, v in fila.items() if v is not None}, columnas_tabla(config, "intervenciones"))
+
+    # La derivacion nace de una evaluacion: si viene informada, se valida que
+    # exista, se heredan sus datos y se evita duplicar la misma derivacion.
+    if datos.evaluacion_id is not None:
+        evaluacion = repo_evaluaciones.obtener(
+            config, datos.evaluacion_id, access_token=usuario.token, user_id=usuario.id
+        )
+        if evaluacion is None:
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                "La evaluacion indicada no existe o no pertenece al usuario.",
+            )
+        fila["dni"] = fila["dni"] or evaluacion.get("dni")
+        fila["nombre"] = fila["nombre"] or evaluacion.get("nombre")
+        if fila["fecha_deteccion"] is None:
+            fila["fecha_deteccion"] = evaluacion.get("creado_en") or evaluacion.get("created_at")
+        if not fila["variables_en_alerta"]:
+            fila["variables_en_alerta"] = list(evaluacion.get("variables_en_alerta") or [])
+
+        existentes = (
+            cliente.table("intervenciones")
+            .select("id,estado,evaluacion_id")
+            .eq("dni", datos.dni)
+            .execute()
+        )
+        for previa in list(existentes.data or []):
+            # Un estudiante no puede estar en dos acompanamientos a la vez.
+            # Si el anterior se cerro, se admite una nueva derivacion.
+            sigue_activa = str(previa.get("estado") or "").upper() in (
+                "DERIVADA",
+                "EN_PROCESO",
+            )
+            if sigue_activa:
+                raise HTTPException(
+                    status.HTTP_409_CONFLICT,
+                    f"{datos.dni} ya tiene una derivacion activa (id {previa['id']}, "
+                    f"estado {previa.get('estado')}). Actualiza su estado en la tabla "
+                    "en lugar de crear otra.",
+                )
+
+    fila = filtrar_columnas(
+        _serializable({k: v for k, v in fila.items() if v is not None}),
+        columnas_tabla(config, "intervenciones"),
+    )
     respuesta = cliente.table("intervenciones").insert(fila).execute()
     insertadas = list(respuesta.data or [])
     if not insertadas:
@@ -93,7 +146,7 @@ def actualizar_intervencion(
 ) -> dict[str, Any]:
     if not _tabla_disponible(config):
         raise _sin_tabla()
-    datos = cambios.model_dump(exclude_none=True)
+    datos = _serializable(cambios.model_dump(exclude_none=True))
     if not datos:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "No hay cambios que aplicar")
     cliente = cliente_usuario(config, usuario.token)

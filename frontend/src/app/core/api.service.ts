@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Estudiante, Evaluacion, Intervencion, KpiInforme, Prediccion, Resumen } from './models';
+import { CandidatoDerivacion, Estudiante, Evaluacion, Intervencion, KpiInforme, Prediccion, Resumen } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -46,6 +46,22 @@ export class ApiService {
   }
 
   // --- Intervenciones de acompanamiento ---------------------------------
+  candidatosDerivacion(params: { incluirBajo?: boolean } = {}): Promise<{
+    total: number;
+    datos: CandidatoDerivacion[];
+  }> {
+    let httpParams = new HttpParams();
+    if (params.incluirBajo) {
+      httpParams = httpParams.set('incluir_bajo', true);
+    }
+    return firstValueFrom(
+      this.http.get<{ total: number; datos: CandidatoDerivacion[] }>(
+        `${this.base}/evaluaciones/candidatos`,
+        { params: httpParams },
+      ),
+    );
+  }
+
   listarIntervenciones(params: { limite?: number; dni?: string } = {}): Promise<{
     total: number;
     datos: Intervencion[];

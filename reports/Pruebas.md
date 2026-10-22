@@ -7,7 +7,7 @@ Entorno: Windows 11 · 12 nucleos lógicos · Python 3.11.9 · Node 24.15 · k6 
 
 ## 1. Pruebas unitarias
 
-### 1.1 Backend (pytest) — 59 tests, todos en verde
+### 1.1 Backend (pytest) — 71 tests, todos en verde
 
 ```powershell
 .\dropout-env\Scripts\python.exe -m pytest -v
@@ -18,9 +18,12 @@ Entorno: Windows 11 · 12 nucleos lógicos · Python 3.11.9 · Node 24.15 · k6 
 | `tests/test_predictor.py` | 34 | Contrato del formulario con el modelo, normalizacion de categorias, imputacion de variables no capturadas, validaciones de entrada, coherencia de umbrales y **equivalencia exacta de la ruta rapida con el pipeline original de sklearn** (40 filas reales, `atol=1e-9`) |
 | `tests/test_api.py` | 18 | Health, indice y OpenAPI, contrato de `/predict`, validaciones (edad, nota, area, campos obligatorios, aprobadas > matriculadas), proteccion de rutas, token invalido, **CORS** (origen permitido, previsualizaciones de Vercel por regex, origen ajeno bloqueado) y flujo completo contra Supabase (login -> crear -> listar -> corregir -> borrar -> panel) |
 | `tests/test_sesion_cache.py` | 7 | Cache de sesiones: guarda/recupera, credenciales distintas, normalizacion del correo, caducidad, limite de tamano, invalidacion y que **la contrasena nunca se guarda en claro** |
+| `tests/test_kpis.py` | 8 | Formulas de los 4 KPI de impacto, denominadores (cobertura sobre detectados en ALTO en cualquier evaluacion), variables modificables y calculo del tiempo medio de respuesta |
+| `tests/test_candidatos.py` | 3 | Candidatos a derivacion: ultima evaluacion por DNI, orden ALTO primero, exclusion de riesgo bajo y marca de derivacion activa (una `CERRADA` no bloquea un nuevo ciclo) |
+| `tests/test_serializacion.py` | 1 | Las fechas se envian a Supabase como ISO-8601 (bug real: el `datetime` de Pydantic rompia el `POST /intervenciones` con un 500) |
 
 ```
-============================= 59 passed in 12.28s =============================
+============================= 71 passed in 10.04s =============================
 ```
 
 El test mas importante del conjunto es
@@ -48,7 +51,7 @@ Test Files  4 passed (4)
      Tests  13 passed (13)
 ```
 
-**Total: 72 pruebas unitarias, 0 fallos.**
+**Total: 84 pruebas unitarias, 0 fallos.**
 
 ---
 
@@ -151,9 +154,9 @@ Recorrido completo con navegador real (Playwright + Edge) contra la
 
 | Tipo | Cantidad | Resultado |
 |---|---|---|
-| Unitarias backend | 59 | 100 % |
+| Unitarias backend | 71 | 100 % |
 | Unitarias frontend | 13 | 100 % |
-| Integracion (Supabase real) | 1 (dentro de los 59) | 100 % |
+| Integracion (Supabase real) | 1 (dentro de los 71) | 100 % |
 | Carga / estres local (200 VUs) | 15 934 requests | 0 % errores, p95 112 ms |
 | Estres en produccion (200 VUs) | 15 894 requests | 3.21 % errores (limite del plan gratuito) |
 | End-to-end en produccion | 6 pantallas | 0 errores de consola |

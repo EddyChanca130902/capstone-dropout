@@ -87,6 +87,22 @@ export interface Intervencion {
   creado_en?: string | null;
 }
 
+/** Estudiante ya evaluado, candidato a derivacion (ultima evaluacion). */
+export interface CandidatoDerivacion {
+  evaluacion_id: number;
+  dni: string;
+  nombre: string | null;
+  area_estudios: string | null;
+  nivel: Nivel;
+  probabilidad: number;
+  creado_en: string | null;
+  variables_en_alerta: string[];
+  factores_clave: FactorClave[];
+  derivado: boolean;
+  intervencion_estado: EstadoIntervencion | null;
+  intervencion_fecha: string | null;
+}
+
 export interface KpiValor {
   valor: number | null;
   unidad: string;

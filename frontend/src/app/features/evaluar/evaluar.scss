@@ -141,10 +141,26 @@
   flex-wrap: wrap;
 }
 
-.acciones button {
+.acciones button,
+.acciones a.derivar {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+}
+
+.acciones a.derivar {
+  padding: 0.6rem 0.95rem;
+  border-radius: var(--radio-sm);
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  box-shadow: 0 6px 14px rgba(23, 107, 114, 0.18);
+}
+
+.acciones a.derivar:hover {
+  background: var(--brand-dark);
 }
 
 /* --- Resultado --- */
