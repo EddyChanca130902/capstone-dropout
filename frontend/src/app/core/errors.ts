@@ -32,3 +32,25 @@ export function mensajeDeError(error: unknown, que: string): string {
     ? detalle
     : `No se pudo cargar ${que}. Intentalo de nuevo en unos segundos.`;
 }
+
+
+/**
+ * Extrae el mensaje de error de la API.
+ *
+ * FastAPI devuelve `detail` como texto en los errores de negocio, pero como
+ * **array de objetos** en los 422 de validacion de Pydantic. Sin esto, el
+ * usuario ve un mensaje generico y no sabe que campo corregir.
+ */
+export function detalleDeError(error: unknown): string | null {
+  const bruto = (error as { error?: { detail?: unknown } })?.error?.detail;
+  if (typeof bruto === 'string') {
+    return bruto;
+  }
+  if (Array.isArray(bruto) && bruto.length > 0) {
+    const primero = bruto[0] as { loc?: unknown[]; msg?: string };
+    const campo = Array.isArray(primero.loc) ? String(primero.loc[primero.loc.length - 1]) : '';
+    const mensaje = primero.msg ?? 'valor invalido';
+    return campo ? `${campo}: ${mensaje}` : mensaje;
+  }
+  return null;
+}

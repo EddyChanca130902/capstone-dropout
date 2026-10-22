@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import { AvisosService } from '../../core/avisos.service';
+import { detalleDeError } from '../../core/errors';
 import { Intervencion, KpiInforme, KpiValor, traducirVariable } from '../../core/models';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
@@ -108,8 +109,15 @@ export class Impacto implements OnInit {
   }
 
   async derivar(): Promise<void> {
-    if (!this.dni.trim() || this.accion.trim().length < 3) {
-      this.avisos.error('Faltan datos', 'El DNI y la acción son obligatorios.');
+    if (this.dni.trim().length < 5) {
+      this.avisos.error(
+        'Falta el DNI',
+        'El documento de identidad debe tener al menos 5 caracteres.',
+      );
+      return;
+    }
+    if (this.accion.trim().length < 3) {
+      this.avisos.error('Falta la acción', 'Describe la acción correctiva aplicada.');
       return;
     }
     this.guardando.set(true);
@@ -133,13 +141,10 @@ export class Impacto implements OnInit {
       this.mostrarFormulario = false;
       await this.cargar();
     } catch (error) {
-      const detalle =
-        typeof error === 'object' && error !== null && 'error' in error
-          ? ((error as { error?: { detail?: unknown } }).error?.detail ?? '')
-          : '';
+      const detalle = detalleDeError(error);
       this.avisos.error(
         'No se pudo registrar la derivación',
-        typeof detalle === 'string' && detalle ? detalle : undefined,
+        detalle ?? 'Revisa los datos e inténtalo de nuevo.',
       );
     } finally {
       this.guardando.set(false);
