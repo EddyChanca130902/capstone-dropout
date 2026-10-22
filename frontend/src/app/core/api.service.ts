@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Estudiante, Evaluacion, Intervencion, KpiInforme, Prediccion, Resumen } from './models';
 
@@ -73,5 +73,20 @@ export class ApiService {
 
   kpisImpacto(): Promise<KpiInforme> {
     return firstValueFrom(this.http.get<KpiInforme>(`${this.base}/kpis/impacto`));
+  }
+
+  /**
+   * Despierta el servicio con un ping barato a /health.
+   *
+   * El hosting gratuito duerme tras 15 min sin trafico y su primer arranque
+   * tarda ~20 s. Llamar a /health al entrar en la app "despierta" la API
+   * mientras el usuario esta introduciendo sus credenciales, de modo que la
+   * primera peticion de datos ya encuentre el servicio caliente.
+   */
+  despertar(): Promise<boolean> {
+    const url = this.base.replace(/\/api\/v1$/, '/health');
+    return firstValueFrom(
+      this.http.get<{ estado: string }>(url).pipe(map((r) => r.estado === 'ok')),
+    ).catch(() => false);
   }
 }

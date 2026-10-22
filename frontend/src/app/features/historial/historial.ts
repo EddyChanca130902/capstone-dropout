@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { ApiService } from '../../core/api.service';
 import { AvisosService } from '../../core/avisos.service';
+import { mensajeDeError } from '../../core/errors';
 import { AREAS, Evaluacion } from '../../core/models';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
@@ -43,8 +44,8 @@ export class Historial implements OnInit {
         nivel: this.filtroNivel || undefined,
       });
       this.filas.set(respuesta.datos);
-    } catch {
-      this.error.set('No se pudo cargar el historial. Revisa tu conexión e inténtalo de nuevo.');
+    } catch (error) {
+      this.error.set(mensajeDeError(error, 'el historial'));
     } finally {
       this.cargando.set(false);
     }

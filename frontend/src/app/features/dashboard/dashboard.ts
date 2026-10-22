@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { DecimalPipe, PercentPipe } from '@angular/common';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
+import { mensajeDeError } from '../../core/errors';
 import { Resumen } from '../../core/models';
 import { EmptyState } from '../../shared/empty-state';
 import { Icon } from '../../shared/icon';
@@ -42,8 +43,8 @@ export class Dashboard implements OnInit {
     this.error.set(null);
     try {
       this.resumen.set(await this.api.resumen());
-    } catch {
-      this.error.set('No se pudo cargar el panel. Revisa tu conexión e inténtalo de nuevo.');
+    } catch (error) {
+      this.error.set(mensajeDeError(error, 'el panel'));
     } finally {
       this.cargando.set(false);
     }
