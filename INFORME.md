@@ -359,6 +359,7 @@ Cada apartado del informe se corresponde con ficheros verificables del repositor
 | Diseño de la API (§9.3) | `api/routers/`, `api/schemas/` | OpenAPI en `/docs` |
 | Diseño de la interfaz (§9.4) | `frontend/src/app/features/` | Recorrido E2E con capturas |
 | Plan de desarrollo (§10) | Historial de commits | `git log` |
+| Figuras de pruebas | [índice de figuras](docs/FIGURAS_PRUEBAS.md) | `reports/figures/08` a `11` |
 | Política de privacidad | `frontend/src/app/features/privacidad/` | Ruta `/privacidad` |
 
 ---

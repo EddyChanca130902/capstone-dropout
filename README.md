@@ -26,6 +26,7 @@ Docker · Render + Vercel · GitHub Actions.
 | [docs/EVALUACION_SOLUCION.md](docs/EVALUACION_SOLUCION.md) | 25 indicadores con fórmula, **4 instrumentos de toma de datos**, trazabilidad y plan de evaluación con criterios de decisión | 5 · Indicadores y toma de datos |
 | [docs/ETICA_Y_FUENTES.md](docs/ETICA_Y_FUENTES.md) | Compromiso ético, fuentes citadas, **declaración de uso de IA** y atención de observaciones de T1 | 7 · Ética y observaciones |
 | [docs/GUION_EXPOSICION.md](docs/GUION_EXPOSICION.md) | **Guion hablado palabra por palabra** de las 10 partes de la exposición (12 min), con la demo guiada paso a paso, 3 aperturas alternativas y notas de ritmo | 6 · Exposición |
+| [docs/FIGURAS_PRUEBAS.md](docs/FIGURAS_PRUEBAS.md) | **4 figuras de pruebas** generadas con datos reales (carga en el tiempo, cobertura por nível y módulo, comparativa local/producción) y **qué decir en cada una** | 3 y 6 |
 | [docs/GUION_SUSTENTACION.md](docs/GUION_SUSTENTACION.md) | Guion cronometrado de 12 min, plan de contingencia del demo y **preguntas con respuesta preparada** | 6 · Exposición y sustentación |
 | [DEPLOY.md](DEPLOY.md) | Guía paso a paso de despliegue en Render y Vercel | — |
 | [reports/Pruebas.md](reports/Pruebas.md) | Resultados medidos de las pruebas unitarias, de carga y de estrés | — |

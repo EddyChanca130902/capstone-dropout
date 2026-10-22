@@ -164,6 +164,24 @@
 >
 > *Y las correcciones de rendimiento que sí fueron mías:.cachear las claves públicas de Supabase, que añadía 300 milisegundos a cada petición; fijar un solo hilo de OpenMP para XGBoost, que evitaba la sobrecoste de hilos bajo concurrencia; y la ruta rápida de preprocesado que mencioné antes. Con 50 usuarios virtuales, el p95 pasó de 646 a 10,5 milisegundos.*
 
+> *Aquí tengo **cuatro figuras** que explican esto mejor que cualquier cifra suelta.* [Muestra `reports/figures/08_carga_tiempo.png`]
+>
+> *Esta primera es el comportamiento bajo carga en local: el caudal sube de forma prácticamente lineal con los usuarios virtuales, hasta un pico de 663 peticiones por segundo, y la latencia p95 se mantiene en el orden de cientos de milisegundos. No hay colapso.*
+>
+> *[Muestra `reports/figures/09_pruebas_cobertura.png`]*
+>
+> *Y esta es la cobertura: cinco niveles de prueba —unitarias, integración contra Supabase real, end-to-end con navegador real y carga— y cobertura en todos los módulos de negocio.*
+>
+> *[Muestra `reports/figures/10_comparativa_entornos.png`]*
+>
+> *Y aquí está la comparación entre local y producción.*
+>
+> *[Muestra `reports/figures/11_carga_comparada.png`]*
+>
+> *Esta es la figura que más me importa, porque resume el proyecto entero: **en local el caudal sigue subiendo; en producción se aplana**, porque la instancia compartida de 0,5 gigabytes del plan gratuito se satura. Pero fíjense en el dato que hay que mirar: **la inferencia del modelo en el servidor de producción tarda 0,97 milisegundos**. Si el código fuera el cuello de botella, ese número sería alto. Es bajo. Lo que tarda es la red.*
+>
+> *Por eso la recomendación del informe es un plan con recursos garantizados, y por eso el sistema está preparado para escalar: el modelo se carga una vez en memoria, no en cada petición.*
+
 ---
 
 ## 8 · Seguridad y datos (8:45 - 9:30)
