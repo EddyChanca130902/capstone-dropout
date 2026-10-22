@@ -21,6 +21,52 @@ Por eso la evaluación no se centra solo en el rendimiento del modelo, sino en t
 
 ---
 
+## 1 bis. Los KPI como columna vertebral de la defensa
+
+Un KPI suelto es un dato. Un KPI **anclado a una afirmación que el proyecto sostiene** es un argumento: es la evidencia que convence al jurado de que la afirmación es cierta.
+
+Por eso cada indicador de este plan responde a una pregunta «¿qué afirma EarlySign y con qué lo demuestro?», y cada afirmación se sostiene en algún momento del guion de exposición.
+
+### 1 bis.1 Mapa: afirmación → KPI → evidencia
+
+| # | Afirmación que sostiene el software | KPI que la respalda | Evidencia verificable | Valor actual | Momento del guion |
+|---|---|---|---|---|---|
+| **A1** | **Detecta el abandono antes de que sea irreversible** | **I-E1** detección temprana · **I-E2** aciertos | Ficha de seguimiento de casos a 30-60 días | ⏳ pendiente del piloto | Parte 9 («Evaluación») |
+| **A2** | **La estimación es fiable, con sus límites declarados** | **I-T1** AUC · **I-T2** recall · **I-T6** Brier (calibración) | Test split 20 % estratificado + CV 5 folds | AUC **0.934** · recall **0.831** · Brier 0.092 | Parte 4 («El modelo») |
+| **A3** | **No es una caja negra: el orientador sabe por qué** | **Coherencia con el juicio experto**: los 3 factores principales del modelo coinciden con los que el EDA identificó | `reports/figures/03_factores_binarios.png`, `04_notas_vs_dropout.png`, `06_shap_global_xgb.png` | Coincidencia de los 3 factores principales | Parte 4 |
+| **A4** | **Resuelve el problema de gestión: prioriza y ahorra tiempo** | **I-E4** ahorro de tiempo · **I-E8** claridad de priorización · **I-O5** tiempo de registro | Cuestionario pre/post + extracción del sistema | ⏳ pendiente del piloto | Partes 1 y 9 |
+| **A5** | **Es seguro con datos de estudiantes** | **I-O7** accesos a datos ajenos · **I-O8** disponibilidad | `scripts/verify_supabase.py` (2 usuarios reales) | **0 accesos ajenos** · 0 % de error en 15 934 requests | Parte 8 («Seguridad») |
+| **A6** | **Cada decisión es auditable** | **I-O9** trazabilidad completa de la evaluación | SQL sobre `evaluaciones` (`entradas`, `modelo_version`, `user_id`, marcas de tiempo) | **100 %** de las filas | Parte 3 («Arquitectura») |
+| **A7** | **Se puede mantener y reproducir** | **Cobertura de pruebas** por nível · **Integración en CI** | `reports/Pruebas.md`, `.github/workflows/ci.yml` | **72 tests** · CI en cada push | Parte 7 («Calidad») |
+| **A8** | **Aguanta la carga real de la institución** | **I-T8** throughput · **I-T9** latencia p95 · **I-O6** latencia de la API | 4 escenarios de k6 (hasta 200 VUs) | **371 req/s** · p95 **112 ms** · 0 % de errores | Partes 3 y 7 |
+| **A9** | **Es usable en la consulta, no un trámite** | **I-E7** usabilidad (SUS) · **I-O5** tiempo de registro | Cuestionario (SUS de 10 ítems) + cronómetro del formulario | ⏳ pendiente del piloto | Parte 6 («Demo») |
+
+### 1 bis.2 Las objeciones previsibles y el KPI que las responde
+
+Las preguntas del jurado ya son previsibles. Cada una tiene un KPI detrás que la resuelve:
+
+| Objección probable del jurado | Respuesta | KPI que la sostiene |
+|---|---|---|
+| «¿Cómo sé que el modelo funciona y no es un invento?» | Test split estratificado con semilla fija, CV de 5 folds y comparación de 3 algoritmos | **I-T1, I-T2, I-T4** |
+| «¿No estará sobreajustado?» | 20 % de test nunca visto en el entrenamiento + `modelo_version` en cada evaluación | **I-T1** + **I-O9** |
+| «¿No será solo una caja negra?» | SHAP global y local: el panel muestra los factores queMotivan la alerta | **Coherencia con el EDA** (A3) |
+| «¿Un orientador no podría hacerlo en un Excel?» | Tiempo de registro medido y ahorro declarado por los usuarios | **I-O5, I-E4** |
+| «¿Cuántas alarmas falsas produce?» | Se miden sobre el desenlace real de cada caso | **I-E2, I-E3** |
+| «¿Y si un orientador ve datos de otro?» | Aislamiento en la base de datos, verificado con dos usuarios reales | **I-O7 = 0** |
+| «¿Qué pasa si un estudiante señala de que está registrado?» | Minimización, RLS, trazabilidad y política pública; la decisión sigue siendo humana | **I-O9** + política de privacidad |
+| ¿¿Aguanta si se conectan todos los orientadores?» | 371 req/s con 200 VUs y 0 % de errores | **I-T8, I-T9** |
+| «¿Cómo se mantiene esto?» | 72 tests, integración contra Supabase real, E2E en producción y CI en cada push | **A7** |
+| «¿Dónde está el modelo entrenado? ¿No es de la UPN» | Declarado como proxy en el informe, la interfaz y la política; hay un protocolo de validación con datos propios | **I-E1, I-E2** (tras el piloto) |
+
+### 1 bis.3 La regla que se sigue en la exposición
+
+> **Ningún cifra se enuncia sin la afirmación que sostiene y la evidencia que la respalda.**
+>
+> No se dice «el AUC es 0,934»: se dice «la estimación es fiable, y lo sostengo con un AUC de 0,934 sobre un test del 20 % que el modelo nunca vió».
+> No se dice «bingemos 371 peticiones por segundo»: se dice «la plataforma aguanta la carga de la institución, y lo sostengo con 371 req/s a 200 usuarios virtuales sin un solo error».
+
+---
+
 ## 2. Indicadores
 
 ### 2.1 Indicadores técnicos del modelo (ya medidos)
@@ -51,6 +97,7 @@ Por eso la evaluación no se centra solo en el rendimiento del modelo, sino en t
 | I-O6 | Tiempo de respuesta de la API | p95 de `http_req_duration` | < 250 ms (local) / < 1 500 ms (remoto) | `k6` |
 | I-O7 | Incidencias de seguridad | Nº de accesos a datos ajenos detectados | **0** | `verify_supabase.py` + auditoría de RLS |
 | I-O8 | Disponibilidad | (Requests con error 5xx) / (requests totales) | < 0,5 % | Logs de Render |
+| **I-O9** | **Trazabilidad de la evaluación** | (Filas con `entradas` + `modelo_version` + `user_id` + marcas de tiempo completos) / (filas totales) | **100 %** | SQL sobre `evaluaciones` |
 
 ### 2.3 Indicadores de resultado (los que responde el problema)
 
@@ -143,6 +190,20 @@ Una ficha por cada estudiante marcado como **ALTO** o **MEDIO** por EarlySign:
 
 **Cálculo de I-E1, I-E2 e I-E3** a partir de esta ficha.
 
+```sql
+-- I-O9: trazabilidad completa (debe dar 100 %)
+SELECT COUNT(*) AS total,
+       COUNT(*) FILTER (WHERE entradas IS NOT NULL
+                          AND modelo_version IS NOT NULL
+                          AND user_id IS NOT NULL
+                          AND creado_en IS NOT NULL
+                          AND actualizado_en IS NOT NULL) AS trazables,
+       ROUND(100.0 * COUNT(*) FILTER (WHERE entradas IS NOT NULL
+                          AND modelo_version IS NOT NULL
+                          AND user_id IS NOT NULL) / NULLIF(COUNT(*), 0), 1) AS pct_trazable
+  FROM evaluaciones;
+```
+
 ### 3.4 Instrumento D — Validación con datos propios (fase siguiente)
 
 Si la UPN puede facilitar el padrón y los historiales:
@@ -232,7 +293,7 @@ Cada afirmación de utilidad se contrasta con **al menos dos** fuentes independi
 | I-T1 a I-T9 | ✅ Medidos | `reports/Pruebas.md`, `notebooks/02_modeling.ipynb` |
 | I-O6, I-O8 | ✅ Medidos | `k6` contra la API desplegada |
 | I-O7 | ✅ Verificado | `scripts/verify_supabase.py` |
-| I-O1 a I-O5, I-O8 | ⏳ En producción | Se extraerán del uso real |
+| I-O1 a I-O6, I-O8, I-O9 | ⏳ En producción | Se extraerán del uso real y de la base de datos |
 | I-E1 a I-E8 | ⏳ Pendiente de T0/T1 | Instrumentos listos en este documento |
 
 > **Lo que este documento añade al proyecto:** hasta ahora se había demostrado que el software *funciona* y que el modelo *predice*. Con este plan, el proyecto podrá demostrar además que EarlySign *resuelve el problema* para las personas que lo usan, con datos trazables y criterios de decisión explícitos.

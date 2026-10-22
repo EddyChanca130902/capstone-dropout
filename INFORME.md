@@ -363,6 +363,8 @@ Cada apartado del informe se corresponde con ficheros verificables del repositor
 
 ---
 
+| Indicadores y evaluación | [ñdice de evaluación](docs/EVALUACION_SOLUCION.md) § 1 bis | Cada afirmación del software tiene un KPI que la respalda |
+
 ## 12. Resultados verificados
 
 | Ámbito | Resultado | Evidencia |

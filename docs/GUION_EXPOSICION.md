@@ -182,62 +182,10 @@
 
 **[DIAPOSITIVA 9: los 3 bloques de indicadores]**
 
-> *Un sistema que funciona no es necesariamente un sistema que resuelve el problema. Por eso definí cómo se va a medir si EarlySign sirve.*
+> *Un sistema que funciona no es necesariamente un sistema que resuelve el problema. Por eso definí **cómo se va a medir si EarlySign sirve**.*
 >
-> *Hay tres bloques de indicadores. Los **técnicos**, que ya están medidos: AUC, recall, latencia, throughput. Los **operativos**, que se extraen del propio sistema: cobertura de evaluación, tasa de reevaluación, tiempo de registro, distribución por nivel. Y los **de resultado**, que son los que de verdad importan y que aún no puedo afirmar: **cuántos estudiantes se detectan antes de que pidan ayuda** —mi objetivo es al menos el 50 %—, cuántos aciertos y cuántos falsos positivos produce la alerta, el tiempo ahorrado, la utilidad y la confianza percibidas por el orientador, y la usabilidad medida con la escala SUS.*
+> *Y lo organizo así: **cada afirmación que sostiene este software tiene un KPI detrás**. No presento cifras sueltas; presento evidencia de lo que afirmo.*
 >
-> *Para recogerlos diseñé cuatro instrumentos concretos: un cuestionario pre y post para los orientadores, una hoja de uso que se extrae del sistema con una consulta SQL, una ficha de seguimiento de cada caso a 30 y 60 días, y el protocolo de validación con datos propios de la UPN cuando haya cohortes suficientes. Cada afirmación se contrasta con dos fuentes independientes, y hay criterios de decisión explícitos: si la utilidad percibida baja de 3 sobre 5, el diseño se revisa antes de escalar.*
+> *Cuando digo «la estimación es fiable», lo sostengo con un AUC de 0,934 y un recall de 0,831 sobre un test del 20 % que el modelo nunca vió. Cuando digo «la plataforma aguanta la carga de la institución», lo sostengo con 371 peticiones por segundo con 200 usuarios virtuales y cero errores. Cuando digo «es seguro con datos de estudiantes», lo sostengo con el indicador de accesos a datos ajenos, que es cero, y verificado creando dos usuarios reales y comprobando que cada uno solo ve lo suyo. Y cuando digo «cada decisión es auditable», lo sostengo con que el cien por ciento de las evaluaciones guardan las entradas, la versión del modelo, el autor y las marcas de tiempo.*
 >
-> *Y los siguientes pasos, en orden: migrar el proyecto de Supabase a la región de la UPN, que es lo que más latencia quita; un plan de hosting con recursos garantizados; calibrar los umbrales con la capacidad real de atención; y publicar una variante de alerta temprana usando solo el primer semestre, que medí y da 0,907 de AUC.*
-
----
-
-## 10 · Cierre (10:45 - 11:15)
-
-**[DIAPOSITIVA 10: una frase + el enlace al repositorio]**
-
-> *Para cerrar, quiero volver a la frase con la que empecé, porque es la que define el proyecto: **la plataforma informa, la persona decide**.*
->
-> *EarlySign convierte registros de orientación en una señal comparable, trazable y explicable, para que un orientador pueda priorizar mejor. No reemplaza su criterio, lo apoya con información que antes no existía. Y, por el camino, el proyecto me obligó a aprender la lección más importante de la carrera: **en un sistema predictivo, lo que hay que probar no es que el código no se rompa, sino que se comporte bien**.*
->
-> *El código, la documentación, los planes de calidad y seguridad y la evaluación están en el repositorio del proyecto, que está abierto. Muchas gracias, y quedo atento a sus preguntas.*
-
----
-
-# Notas de ritmo
-
-| Momento | Consejo |
-|---|---|
-| **0:00-0:20** | No saltes la frase "la plataforma informa, la persona decide". Es tu tesis en 8 palabras. |
-| **1:30-2:30** (alternativas) | Es la parte donde se gana el punto de "informe". Habla más despacio de lo que crees. |
-| **4:45-6:00** (defecto) | **El corazón.** Baja el ritmo, haz una pausa antes de "y esta es la que quiero definir". |
-| **6:00-7:30** (demo) | Si algo falla, **no te disculpes en silencio**: "esto es el arranque en frío del plan gratuito, que es una de las limitaciones que voy a explicar". |
-| **10:45-11:15** (cierre) | Termina mirando al jurado, no a la pantalla. |
-
-**Si te pasas de tiempo:** recorta la demo a 1 minuto (login → evaluar → resultado) y deja panel e historial como "lo tienen a la vista en la demo en línea".
-**Si te sobra tiempo:** añade el detalle de la ablación (sin 2.º semestre: AUC 0,914) y la de los umbrales (solo el 9 % cae en la banda MEDIA).
-
----
-
-# Tres aperturas alternativas
-
-**Si el tiempo es muy corto (30 segundos):**
-> *EarlySign es un sistema de señales tempranas de abandono académico para la UPN: el orientador registra los datos del estudiante y el sistema devuelve una probabilidad de abandono y un nivel de riesgo. El modelo es un XGBoost con 0,934 de AUC; la aplicación está en Angular, FastAPI y Supabase; y tiene 72 pruebas automatizadas. La plataforma informa, la persona decide.*
-
-**Si el jurado es técnico:**
-> *Antes de la demo, un dato: la inferencia del modelo tarda 0,34 milisegundos y 371 peticiones por segundo con 200 usuarios virtuales. Todo el tiempo está en el preprocesado de sklearn, no en XGBoost. Eso es lo que me levou a reimplementar el transformador y a escribir un test que verifica que mi versión da exactamente el mismo resultado que el pipeline original.*
-
-**Si el jurado es de gestión / psicología:**
-> *El valor no está en el modelo, está en la trazabilidad: cada alerta queda con quién la hizo, con qué datos y con qué versión del modelo. Eso convierte "el orientador decidió priorizar a este estudiante" en algo auditable y comparable entre semestres.*
-
----
-
-# Checklist 30 minutos antes
-
-- [ ] API abierta 5 min antes (evita el arranque en frío de 20 s)
-- [ ] Pestaña del navegador con la app ya cargada y sesión iniciada
-- [ ] `docs/` y `reports/figures/` abiertos en otra pestaña
-- [ ] Cronómetro visible
-- [ ] Segunda persona revisa la ortografía de las diapositivas
-- [ ] Ensayo completo cronometrado (11-13 min)
-- [ ] Credenciales de prueba a mano (por si la sesión caduca)
+> *Hay tres bloques de indicadores: los **técnicos**, que ya están medidos —AUC, recall, latencia, throughput—; los **operativos**, que se extraen del propio sistema —cobertura, tasa de reevaluación, tiempo de registro, distribución por nivel y trazabilidad—; y los **de resultado**, que son los que de verdad importan y que aún no puedo afirmar porque dependen del piloto: **cuántos estudiantes se detectan antes de que pidan ayuda** —mi objetivo es al menos el 50 %—, cuántos aciertos y cuántos falsos positivos produce la alerta, el tiempo ahorrado, la utilidad y la confianza percibidas por el orientador, y la usabilidad medida con la escala SUS.*
