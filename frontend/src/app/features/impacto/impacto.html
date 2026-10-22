@@ -65,6 +65,19 @@
         ></textarea>
       </div>
     </div>
+    @if (errorForm()) {
+      <div class="error-lineal">
+        <app-icon nombre="alerta" [size]="16" />
+        <span>{{ errorForm() }}</span>
+      </div>
+    }
+    @if (exitoForm()) {
+      <div class="exito-lineal">
+        <app-icon nombre="check" [size]="16" />
+        <span>{{ exitoForm() }}</span>
+      </div>
+    }
+
     <div class="acciones">
       <button type="button" [disabled]="guardando()" (click)="derivar()">
         @if (guardando()) {
@@ -75,6 +88,13 @@
       </button>
       <button type="button" class="secundario" (click)="mostrarFormulario = false">Cancelar</button>
     </div>
+    @if (ultimoRegistro(); as registro) {
+      <p class="guardado">
+        <app-icon nombre="check" [size]="15" />
+        Guardado: {{ registro.dni }} · {{ registro.canal }} · estado {{ registro.estado }}
+        · id {{ registro.id }}
+      </p>
+    }
   </section>
 }
 

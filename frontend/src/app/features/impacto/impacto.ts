@@ -31,6 +31,9 @@ export class Impacto implements OnInit {
   readonly informe = signal<KpiInforme | null>(null);
   readonly intervenciones = signal<Intervencion[]>([]);
   readonly guardando = signal(false);
+  readonly errorForm = signal<string | null>(null);
+  readonly exitoForm = signal<string | null>(null);
+  readonly ultimoRegistro = signal<Intervencion | null>(null);
 
   // Formulario de derivacion
   dni = '';
@@ -109,20 +112,21 @@ export class Impacto implements OnInit {
   }
 
   async derivar(): Promise<void> {
+    this.errorForm.set(null);
+    this.exitoForm.set(null);
     if (this.dni.trim().length < 5) {
-      this.avisos.error(
-        'Falta el DNI',
-        'El documento de identidad debe tener al menos 5 caracteres.',
-      );
+      this.errorForm.set('El documento de identidad debe tener al menos 5 caracteres.');
+      this.avisos.error('Falta el DNI', 'El documento de identidad debe tener al menos 5 caracteres.');
       return;
     }
     if (this.accion.trim().length < 3) {
+      this.errorForm.set('Describe la acción correctiva aplicada.');
       this.avisos.error('Falta la acción', 'Describe la acción correctiva aplicada.');
       return;
     }
     this.guardando.set(true);
     try {
-      await this.api.crearIntervencion({
+      const registrada = await this.api.crearIntervencion({
         dni: this.dni.trim(),
         nombre: this.nombre.trim() || null,
         canal: this.canal as Intervencion['canal'],
@@ -132,20 +136,28 @@ export class Impacto implements OnInit {
         fecha_inicio: this.fechaInicio ? new Date(this.fechaInicio).toISOString() : null,
         variables_en_alerta: [],
       });
+      this.ultimoRegistro.set(registrada);
+      this.exitoForm.set(
+        `Derivación registrada (${registrada.dni}). Ya se refleja en los KPI de impacto.`,
+      );
       this.avisos.exito('Derivación registrada', `${this.dni.trim()} derivado a acompañamiento.`);
       this.dni = '';
       this.nombre = '';
       this.accion = '';
       this.fechaInicio = '';
       this.estado = 'DERIVADA';
-      this.mostrarFormulario = false;
+      // El formulario se mantiene abierto: el registro recien guardado se
+      // muestra debajo y el toast puede pasar inadvertido.
       await this.cargar();
     } catch (error) {
       const detalle = detalleDeError(error);
-      this.avisos.error(
-        'No se pudo registrar la derivación',
-        detalle ?? 'Revisa los datos e inténtalo de nuevo.',
-      );
+      const status = (error as { status?: number })?.status ?? 0;
+      const mensaje =
+        status === 401
+          ? 'Tu sesión ha caducado: vuelve a iniciar sesión e inténtalo de nuevo.'
+          : (detalle ?? 'Revisa los datos e inténtalo de nuevo.');
+      this.errorForm.set(mensaje);
+      this.avisos.error('No se pudo registrar la derivación', mensaje);
     } finally {
       this.guardando.set(false);
     }

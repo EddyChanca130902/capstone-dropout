@@ -197,3 +197,37 @@ textarea:focus {
   justify-content: center;
   margin-top: -1.2rem;
 }
+
+
+.error-lineal,
+.exito-lineal {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radio-sm);
+  font-size: 0.86rem;
+  margin-bottom: 0.8rem;
+}
+
+.error-lineal {
+  background: #fdecea;
+  border: 1px solid #f3c5c0;
+  color: #8c3129;
+}
+
+.exito-lineal {
+  background: #e7f4ec;
+  border: 1px solid #bfe0cd;
+  color: #1f6b47;
+}
+
+.guardado {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--risk-low);
+  margin-top: 0.7rem;
+  font-weight: 600;
+}
