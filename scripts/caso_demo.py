@@ -126,6 +126,16 @@ def cliente_admin(config):
     return _cliente(config)
 
 
+def _solo_columnas(config, tabla: str, fila: dict) -> dict:
+    """Descarta las claves que la tabla todavia no soporta."""
+    from api.services.supabase import columnas_tabla
+
+    columnas = columnas_tabla(config, tabla)
+    if not columnas:
+        return fila
+    return {k: v for k, v in fila.items() if k in columnas}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Caso de demostracion de los KPI")
     parser.add_argument("--limpiar", action="store_true", help="Elimina los casos de demostracion")
@@ -137,7 +147,9 @@ def main() -> int:
     # Usuario propietario de los registros (el usuario de prueba).
     from api.services.supabase import columnas_tabla
 
-    if "intervenciones" not in columnas_tabla(config, "intervenciones"):
+    # `columnas_tabla` devuelve las columnas de la tabla: si esta vacia, la tabla
+    # todavia no existe (falta aplicar la migracion 0002).
+    if not columnas_tabla(config, "intervenciones"):
         print("[X] Falta la tabla `intervenciones`.")
         print("    Aplica supabase/migrations/0002_intervenciones.sql en el SQL Editor de Supabase.")
         return 1
@@ -197,7 +209,7 @@ def main() -> int:
             }
             if usuario_id:
                 fila["user_id"] = usuario_id
-            insertada = cliente.table("evaluaciones").insert(fila).execute()
+            insertada = cliente.table("evaluaciones").insert(_solo_columnas(config, "evaluaciones", fila)).execute()
             if insertada.data:
                 ids_evaluaciones.append(insertada.data[0]["id"])
 
@@ -205,9 +217,21 @@ def main() -> int:
             intervencion = caso["intervencion"]
             variables = []
             if ids_evaluaciones:
-                primera = cliente.table("evaluaciones").select("variables_en_alerta").eq("id", ids_evaluaciones[0]).execute()
+                # Las variables en alerta se derivan de las contribuciones
+                # positivas del modelo (`factores_clave`).
+                primera = (
+                    cliente.table("evaluaciones")
+                    .select("factores_clave")
+                    .eq("id", ids_evaluaciones[0])
+                    .execute()
+                )
                 if primera.data:
-                    variables = primera.data[0].get("variables_en_alerta") or []
+                    factores = primera.data[0].get("factores_clave") or []
+                    variables = [
+                        f.get("variable")
+                        for f in factores
+                        if isinstance(f, dict) and float(f.get("contribucion") or 0) > 0
+                    ]
             fila = {
                 "dni": caso["dni"],
                 "nombre": caso["nombre"],
@@ -225,7 +249,7 @@ def main() -> int:
             }
             if usuario_id:
                 fila["user_id"] = usuario_id
-            cliente.table("intervenciones").insert(fila).execute()
+            cliente.table("intervenciones").insert(_solo_columnas(config, "intervenciones", fila)).execute()
 
         niveles = [predecir_riesgo_abandono(e["datos"])[1] for e in caso["evaluaciones"]]
         resumen.append(

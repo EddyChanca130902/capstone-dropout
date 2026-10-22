@@ -12,10 +12,14 @@
 -- 1. Factores en alerta de cada evaluacion (top de contribuciones del modelo)
 -- -----------------------------------------------------------------------------
 alter table public.evaluaciones
-    add column if not exists factores_clave jsonb;
+    add column if not exists factores_clave jsonb,
+    add column if not exists variables_en_alerta jsonb;
 
 comment on column public.evaluaciones.factores_clave is
     'Variables que el modelo marco en alerta (contribucion positiva) y su valor al evaluar.';
+
+comment on column public.evaluaciones.variables_en_alerta is
+    'Lista de nombres de variable en alerta (derivada de factores_clave).';
 
 -- -----------------------------------------------------------------------------
 -- 2. Intervenciones de acompanamiento

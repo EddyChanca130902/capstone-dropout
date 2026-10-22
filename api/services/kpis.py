@@ -105,7 +105,7 @@ def calcular_kpis(
         config, access_token=access_token, user_id=user_id, limite=1000, orden="asc"
     )
     intervenciones: list[dict[str, Any]] = []
-    if "intervenciones" in columnas_tabla(config, "intervenciones"):
+    if columnas_tabla(config, "intervenciones"):  # lista no vacia = la tabla existe
         cliente = cliente_usuario(config, access_token)
         respuesta = cliente.table("intervenciones").select("*").execute()
         intervenciones = list(respuesta.data or [])

@@ -15,7 +15,9 @@ router = APIRouter(prefix="/api/v1/intervenciones", tags=["intervenciones"])
 
 
 def _tabla_disponible(config: Settings) -> bool:
-    return "intervenciones" in columnas_tabla(config, "intervenciones")
+    """`columnas_tabla` devuelve las columnas de la tabla: si la lista esta
+    vacia, la tabla no existe todavia (falta aplicar la migracion 0002)."""
+    return bool(columnas_tabla(config, "intervenciones"))
 
 
 def _sin_tabla() -> HTTPException:
