@@ -25,6 +25,7 @@ Docker · Render + Vercel · GitHub Actions.
 | [docs/PLAN_SEGURIDAD.md](docs/PLAN_SEGURIDAD.md) | Inventario de activos, modelo de amenazas (STRIDE), matriz de 16 controles con evidencia, gestión de secretos y **requisitos de instalación y ejecución** | 4 · Seguridad y condiciones de funcionamiento |
 | [docs/EVALUACION_SOLUCION.md](docs/EVALUACION_SOLUCION.md) | 25 indicadores con fórmula, **4 instrumentos de toma de datos**, trazabilidad y plan de evaluación con criterios de decisión | 5 · Indicadores y toma de datos |
 | [docs/ETICA_Y_FUENTES.md](docs/ETICA_Y_FUENTES.md) | Compromiso ético, fuentes citadas, **declaración de uso de IA** y atención de observaciones de T1 | 7 · Ética y observaciones |
+| [docs/GUION_EXPOSICION.md](docs/GUION_EXPOSICION.md) | **Guion hablado palabra por palabra** de las 10 partes de la exposición (12 min), con la demo guiada paso a paso, 3 aperturas alternativas y notas de ritmo | 6 · Exposición |
 | [docs/GUION_SUSTENTACION.md](docs/GUION_SUSTENTACION.md) | Guion cronometrado de 12 min, plan de contingencia del demo y **preguntas con respuesta preparada** | 6 · Exposición y sustentación |
 | [DEPLOY.md](DEPLOY.md) | Guía paso a paso de despliegue en Render y Vercel | — |
 | [reports/Pruebas.md](reports/Pruebas.md) | Resultados medidos de las pruebas unitarias, de carga y de estrés | — |

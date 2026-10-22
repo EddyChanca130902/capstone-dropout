@@ -3,6 +3,7 @@
 **Criterio de evaluación:** 6. Exposición y sustentación técnica
 **Duración de referencia:** 10-12 minutos de exposición + 5-8 de preguntas
 **Uso:** ensayo cronometrado + preparación de respuestas.
+> El texto hablado, palabra por palabra, de cada parte está en [GUION_EXPOSICION.md](GUION_EXPOSICION.md).
 
 ---
 
