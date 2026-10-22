@@ -211,3 +211,87 @@
 > *Estos cuatro no los calculo yo a mano: los obtiene la API en `GET /api/v1/kpis/impacto` a partir de las evaluaciones y del registro de derivaciones. Para que tengan datos hacen falta dos cosas del orientador: evaluar y registrar la derivación.*
 >
 > *Y hay tres bloques de indicadores: los **técnicos**, que ya están medidos —AUC, recall, latencia, throughput—; los **operativos**, que se extraen del propio sistema —cobertura, tasa de reevaluación, tiempo de registro, distribución por nivel y trazabilidad—; y los **de resultado**, que son los que de verdad importan y que aún no puedo afirmar porque dependen del piloto: **cuántos estudiantes se detectan antes de que pidan ayuda** —mi objetivo es al menos el 50 %—, cuántos aciertos y cuántos falsos positivos produce la alerta, el tiempo ahorrado, la utilidad y la confianza percibidas por el orientador, y la usabilidad medida con la escala SUS.*
+
+---
+
+## Guion de la demostración de los KPI (2 minutos, parte 9)
+
+Antes de exponer, deja el caso de demostración cargado:
+
+```powershell
+.\dropout-env\Scripts\python.exe scripts\caso_demo.py
+```
+
+Crea 5 estudiantes `DEMO-000X` con predicciones **reales** (las calcula el modelo) y
+un historial retrodatado de 15-40 días: dos casos que mejoran su nivel de riesgo tras la
+intervención, uno que no mejora y dos en alto riesgo sin derivar. Sirve para enseñar
+que los KPI **distinguen** entre casos.
+
+### Paso a paso
+
+**[Clic: "Impacto" en la barra lateral]**
+
+> *Esta es la vista de impacto. Arriba, los cuatro KPI de acompañamiento; abajo, el
+> registro de derivaciones. Y todo esto **se calcula solo**: la API los obtiene de las
+> evaluaciones y de las derivaciones registradas, sin que nadie los calcule a mano.*
+
+**[Señalar la primera tarjeta · Tasa de cobertura de intervención]**
+
+> *La tasa de cobertura de intervención responde: de cada estudiante que el sistema
+> detectó en alto riesgo, ¿cuántos reciben realmente acompañamiento?* Aquí veo
+> un porcentaje sobre una fracción, y la fracción es el número de estudiantes
+> derivados sobre los detectados en alto riesgo. Si la cobertura es baja, el problema no es
+> el modelo: es que la orientación no tiene tiempo de derivar.*
+
+**[Segunda tarjeta · Variación del nivel de riesgo]**
+
+> *Esta es la que mide el impacto real: de los estudiantes que recibieron acompañamiento
+> y fueron reevaluados, ¿cuántos bajaron de nivel de riesgo? Comparo la primera
+> evaluación con la última, no con una percepción.*
+
+**[Tercera tarjeta · Índice de resolución de variables modificables]**
+
+> *Y esta es la más fina. No pregunta si el estudiante mejoró en general: pregunta si
+> mejoraron **las variables concretas que el modelo marcó en alerta**. Si la alerta era
+> "matrícula al día" y "deuda", y tras la intervención esas dos cambiaron, esa
+> intervención funcionó sobre la causa, no sobre el síntoma. Solo entran en el
+> denominador las variables que la institución puede cambiar.*
+
+**[Cuarta tarjeta · Tiempo de respuesta]**
+
+> *Y el cuarto es de agilidad operativa: días entre que el sistema detecta y que el
+> responsable aplica la solución. Si este número crece, el problema es de
+> capacidad del equipo, no del sistema.*
+
+**[Scrollear a la tabla de derivaciones]**
+
+> *Abajo queda el registro: quién derivó, cuándo, por qué canal y qué acción
+> aplicó, y con qué variables estaban en alerta. Este registro es lo que hace que
+> los KPI sean auditables: no son un numero, son la evidencia de qué se hizo.*
+
+### Si quieres añadir el paso de registrar una derivación en vivo (30 s)
+
+**[Clic: "Registrar derivación"]**
+
+> *Esto es lo que hace el orientador cuando detecta un caso. Lo registro aquí, con la
+> fecha de inicio de la acción, y el KPI de tiempo de respuesta se recalcula al
+> instante.*
+
+Rellena un caso, pulsa **Registrar derivación** y comprueba que la tarjeta de cobertura
+se mueve. *(Requiere que el usuario tenga al menos una evaluación en ALTO.)*
+
+### Frases de cierre de la parte 9
+
+> *Con esto EarlySign no solo dice quién está en riesgo: deja constancia de qué se
+> hizo al respecto y permite medir si funcionó.*
+
+> *Los cuatro indicadores no los reporto yo: los calcula el sistema a partir de las
+> evaluaciones y de las derivaciones, con la fórmula y los denominadores a la vista.*
+
+### Recordatorio técnico
+
+| Problema | Solución |
+|---|---|
+| El hosting gratuito se duerme 15 min | Abre la app 5 min antes (la API se despierta sola con el ping a /health) |
+| Los KPI salen en “—” | Hay que registrar al menos una derivación y una reevaluación |
+| Se teñón los datos de prueba | `python scripts/caso_demo.py --limpiar` |

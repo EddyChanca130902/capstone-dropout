@@ -282,6 +282,8 @@ k6 run k6/soak.js      # 30 min a 10 VUs: fugas y degradacion
 
 ---
 
+| [scripts/caso_demo.py](scripts/caso_demo.py) | **Caso de demostracion** de los KPI de impacto (5 estudiantes con historico y predicciones reales) para la sustentacion | 5 · Indicadores |
+
 ## 5. Correcciones importantes aplicadas
 
 | # | Problema | Impacto | Estado |
