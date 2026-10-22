@@ -12,6 +12,7 @@ from api.schemas.estudiante import EstudianteIn
 from api.schemas.evaluacion import EvaluacionPatch
 from api.services import evaluaciones as repo
 from api.services.model import predecir
+from src.predictor import explicar_riesgo
 
 router = APIRouter(prefix="/api/v1/evaluaciones", tags=["evaluaciones"])
 
@@ -27,6 +28,11 @@ def crear_evaluacion(
     usuario: UsuarioActual = Depends(usuario_actual),
 ) -> dict[str, Any]:
     resultado = predecir(estudiante.a_formulario(), config)
+    # Explicabilidad: que variablesResponsible de la alerta (base del KPI 3).
+    try:
+        explicacion = explicar_riesgo(estudiante.a_formulario())
+    except Exception:  # pragma: no cover - la explicacion no es critica
+        explicacion = {"factores": [], "variables_en_alerta": []}
     fila: dict[str, Any] = {
         "dni": estudiante.dni,
         "nombre": estudiante.nombre,
@@ -35,6 +41,8 @@ def crear_evaluacion(
         "nivel": resultado["nivel"],
         "modelo_version": resultado["modelo_version"],
         "entradas": estudiante.model_dump(),
+        "factores_clave": explicacion.get("factores", []),
+        "variables_en_alerta": explicacion.get("variables_en_alerta", []),
         "created_at": None,
     }
     fila = {k: v for k, v in fila.items() if v is not None}

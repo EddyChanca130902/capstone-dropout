@@ -1,0 +1,187 @@
+<div class="cabecera">
+  <div>
+    <h1>📊 Impacto del acompañamiento</h1>
+    <p class="intro">
+      Los cuatro indicadores que miden si EarlySign está produciendo resultado: cobertura de la
+      intervención, evolución del riesgo, resolución de las variables modificables y tiempo de
+      respuesta.
+    </p>
+  </div>
+  <button type="button" (click)="mostrarFormulario = !mostrarFormulario" class="nuevo">
+    <app-icon nombre="mas" [size]="16" />
+    Registrar derivación
+  </button>
+</div>
+
+@if (mostrarFormulario) {
+  <section class="tarjeta formulario">
+    <h2>Derivar a acompañamiento</h2>
+    <p class="sub">
+      El registro de la derivación es el origen de los KPI de impacto: sin él, la cobertura y el
+      tiempo de respuesta no se pueden calcular.
+    </p>
+    <div class="rejilla">
+      <div>
+        <label for="dni">DNI del estudiante</label>
+        <input id="dni" [(ngModel)]="dni" placeholder="70123456" />
+      </div>
+      <div>
+        <label for="nombre">Nombre</label>
+        <input id="nombre" [(ngModel)]="nombre" placeholder="Nombre y apellidos" />
+      </div>
+      <div>
+        <label for="canal">Canal</label>
+        <select id="canal" [(ngModel)]="canal">
+          <option value="TUTORIA">Tutoría</option>
+          <option value="ORIENTACION">Orientación</option>
+          <option value="BECATEO">Bcateo</option>
+          <option value="DERIVACION">Derivación a otra unidad</option>
+          <option value="OTRO">Otro</option>
+        </select>
+      </div>
+      <div>
+        <label for="fecha">Fecha de inicio de la intervención</label>
+        <input id="fecha" type="date" [(ngModel)]="fechaInicio" />
+      </div>
+      <div>
+        <label for="responsable">Responsable</label>
+        <input id="responsable" [(ngModel)]="responsable" placeholder="Nombre de quien atiende" />
+      </div>
+      <div>
+        <label for="estado">Estado</label>
+        <select id="estado" [(ngModel)]="estado">
+          <option value="DERIVADA">Derivada</option>
+          <option value="EN_PROCESO">En proceso</option>
+          <option value="CERRADA">Cerrada</option>
+        </select>
+      </div>
+      <div class="ancho">
+        <label for="accion">Acción correctiva aplicada</label>
+        <textarea
+          id="accion"
+          rows="3"
+          [(ngModel)]="accion"
+          placeholder="Tutoría de refuerzo en cursos de segundo semestre, gestión de deuda, orientación vocacional…"
+        ></textarea>
+      </div>
+    </div>
+    <div class="acciones">
+      <button type="button" [disabled]="guardando()" (click)="derivar()">
+        @if (guardando()) {
+          <span class="spinner"></span> Guardando…
+        } @else {
+          <app-icon nombre="check" [size]="16" /> Registrar derivación
+        }
+      </button>
+      <button type="button" class="secundario" (click)="mostrarFormulario = false">Cancelar</button>
+    </div>
+  </section>
+}
+
+@if (cargando()) {
+  <div class="tarjetas">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="tarjeta kpi">
+        <app-skeleton alto="0.8rem" ancho="70%" />
+        <app-skeleton alto="2.2rem" ancho="45%" />
+        <app-skeleton alto="0.7rem" ancho="85%" />
+      </div>
+    }
+  </div>
+} @else if (error()) {
+  <div class="error">
+    <app-icon nombre="alerta" [size]="16" /> {{ error() }}
+  </div>
+} @else {
+  <div class="tarjetas">
+    @for (tarjeta of tarjetas; track tarjeta.clave) {
+      <div class="tarjeta kpi" [class.sin-datos]="!tarjeta.valor.disponible">
+        <div class="titulo">
+          <span>{{ tarjeta.titulo }}</span>
+        </div>
+        <div class="valor">{{ valor(tarjeta.valor) }}</div>
+        <div class="fraccion">{{ formula(tarjeta.valor) }}</div>
+        <p class="concepto">{{ tarjeta.concepto }}</p>
+        <details>
+          <summary>Fórmula</summary>
+          <code>{{ tarjeta.valor.formula }}</code>
+        </details>
+        @if (tarjeta.valor.nota) {
+          <p class="nota">{{ tarjeta.valor.nota }}</p>
+        }
+      </div>
+    }
+  </div>
+
+  <section class="tarjeta">
+    <h2>Derivaciones registradas</h2>
+    <p class="sub">
+      Una fila por estudiante derivado. El estado y la fecha de inicio alimentan los KPI de
+      cobertura y de tiempo de respuesta.
+    </p>
+    @if (intervenciones().length === 0) {
+      <app-empty-state
+        icono="bandeja"
+        titulo="Sin derivaciones registradas"
+        mensaje="Registra la derivación cuando un estudiante en alto riesgo entra al acompañamiento. A partir de ese registro se calculan la cobertura de intervención y el tiempo de respuesta."
+        textoAccion="Registrar la primera derivación"
+        iconoAccion="mas"
+      />
+      <div class="centro">
+        <button type="button" (click)="mostrarFormulario = true">Registrar derivación</button>
+      </div>
+    } @else {
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>DNI</th>
+            <th>Estudiante</th>
+            <th>Derivación</th>
+            <th>Inicio</th>
+            <th>Canal</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (intervencion of intervenciones(); track intervencion.id) {
+            <tr>
+              <td>{{ intervencion.dni }}</td>
+              <td class="nombre">{{ intervencion.nombre ?? '—' }}</td>
+              <td>{{ fecha(intervencion.fecha_derivacion) }}</td>
+              <td>{{ fecha(intervencion.fecha_inicio) }}</td>
+              <td>{{ intervencion.canal ?? '—' }}</td>
+              <td>
+                <span class="estado" [class]="'estado ' + estadoClase(intervencion.estado)">
+                  {{ intervencion.estado }}
+                </span>
+              </td>
+              <td>
+                <div class="acciones">
+                  <select
+                    [ngModel]="intervencion.estado"
+                    (ngModelChange)="cambiarEstado(intervencion, $event)"
+                    [name]="'estado-' + intervencion.id"
+                    aria-label="Estado de la intervención"
+                  >
+                    <option value="DERIVADA">DERIVADA</option>
+                    <option value="EN_PROCESO">EN_PROCESO</option>
+                    <option value="CERRADA">CERRADA</option>
+                  </select>
+                  <button
+                    type="button"
+                    class="peligro icono-boton"
+                    (click)="eliminar(intervencion)"
+                    [attr.aria-label]="'Eliminar la derivación de ' + intervencion.dni"
+                  >
+                    <app-icon nombre="basura" [size]="15" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+}

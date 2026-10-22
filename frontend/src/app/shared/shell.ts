@@ -20,6 +20,7 @@ export class Shell {
     { ruta: '/panel', icono: 'panel', titulo: 'Panel principal' },
     { ruta: '/evaluar', icono: 'evaluar', titulo: 'Evaluar estudiante' },
     { ruta: '/historial', icono: 'historial', titulo: 'Historial' },
+    { ruta: '/impacto', icono: 'grafico', titulo: 'Impacto' },
   ];
 
   readonly version = '1.0.0';

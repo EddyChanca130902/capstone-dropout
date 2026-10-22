@@ -31,15 +31,15 @@ Por eso cada indicador de este plan responde a una pregunta «¿qué afirma Earl
 
 | # | Afirmación que sostiene el software | KPI que la respalda | Evidencia verificable | Valor actual | Momento del guion |
 |---|---|---|---|---|---|
-| **A1** | **Detecta el abandono antes de que sea irreversible** | **I-E1** detección temprana · **I-E2** aciertos | Ficha de seguimiento de casos a 30-60 días | ⏳ pendiente del piloto | Parte 9 («Evaluación») |
+| **A1** | **Detecta el abandono antes de que sea irreversible** | **KPI 1** cobertura de intervención · **KPI 2** variación del nivel de riesgo | Registro de derivaciones + reevaluación en el sistema | ⏳ pendiente de uso real | Parte 9 («Impacto») |
 | **A2** | **La estimación es fiable, con sus límites declarados** | **I-T1** AUC · **I-T2** recall · **I-T6** Brier (calibración) | Test split 20 % estratificado + CV 5 folds | AUC **0.934** · recall **0.831** · Brier 0.092 | Parte 4 («El modelo») |
 | **A3** | **No es una caja negra: el orientador sabe por qué** | **Coherencia con el juicio experto**: los 3 factores principales del modelo coinciden con los que el EDA identificó | `reports/figures/03_factores_binarios.png`, `04_notas_vs_dropout.png`, `06_shap_global_xgb.png` | Coincidencia de los 3 factores principales | Parte 4 |
-| **A4** | **Resuelve el problema de gestión: prioriza y ahorra tiempo** | **I-E4** ahorro de tiempo · **I-E8** claridad de priorización · **I-O5** tiempo de registro | Cuestionario pre/post + extracción del sistema | ⏳ pendiente del piloto | Partes 1 y 9 |
+| **A4** | **Resuelve el problema de gestión: prioriza y ahorra tiempo** | **KPI 4** tiempo de respuesta · **I-O5** tiempo de registro | Registro de derivaciones + cronómetro del formulario | ⏳ pendiente de uso real | Partes 1 y 9 |
 | **A5** | **Es seguro con datos de estudiantes** | **I-O7** accesos a datos ajenos · **I-O8** disponibilidad | `scripts/verify_supabase.py` (2 usuarios reales) | **0 accesos ajenos** · 0 % de error en 15 934 requests | Parte 8 («Seguridad») |
 | **A6** | **Cada decisión es auditable** | **I-O9** trazabilidad completa de la evaluación | SQL sobre `evaluaciones` (`entradas`, `modelo_version`, `user_id`, marcas de tiempo) | **100 %** de las filas | Parte 3 («Arquitectura») |
 | **A7** | **Se puede mantener y reproducir** | **Cobertura de pruebas** por nível · **Integración en CI** | `reports/Pruebas.md`, `.github/workflows/ci.yml` | **72 tests** · CI en cada push | Parte 7 («Calidad») |
 | **A8** | **Aguanta la carga real de la institución** | **I-T8** throughput · **I-T9** latencia p95 · **I-O6** latencia de la API | 4 escenarios de k6 (hasta 200 VUs) | **371 req/s** · p95 **112 ms** · 0 % de errores | Partes 3 y 7 |
-| **A9** | **Es usable en la consulta, no un trámite** | **I-E7** usabilidad (SUS) · **I-O5** tiempo de registro | Cuestionario (SUS de 10 ítems) + cronómetro del formulario | ⏳ pendiente del piloto | Parte 6 («Demo») |
+| **A9** | **Es usable** en la consulta, no un trámite** | **I-O5** tiempo de registro · usabilidad (SUS, bloque 3 del cuestionario) | Cronómetro del formulario + cuestionario | ⏳ pendiente de uso real | Parte 6 («Demo») |
 
 ### 1 bis.2 Las objeciones previsibles y el KPI que las responde
 
@@ -51,12 +51,12 @@ Las preguntas del jurado ya son previsibles. Cada una tiene un KPI detrás que l
 | «¿No estará sobreajustado?» | 20 % de test nunca visto en el entrenamiento + `modelo_version` en cada evaluación | **I-T1** + **I-O9** |
 | «¿No será solo una caja negra?» | SHAP global y local: el panel muestra los factores queMotivan la alerta | **Coherencia con el EDA** (A3) |
 | «¿Un orientador no podría hacerlo en un Excel?» | Tiempo de registro medido y ahorro declarado por los usuarios | **I-O5, I-E4** |
-| «¿Cuántas alarmas falsas produce?» | Se miden sobre el desenlace real de cada caso | **I-E2, I-E3** |
+| «¿Cuántas alarmas falsas produce?» | Se miden sobre el desenlace real de cada caso | **KPI 2** (variación del riesgo) |
 | «¿Y si un orientador ve datos de otro?» | Aislamiento en la base de datos, verificado con dos usuarios reales | **I-O7 = 0** |
 | «¿Qué pasa si un estudiante señala de que está registrado?» | Minimización, RLS, trazabilidad y política pública; la decisión sigue siendo humana | **I-O9** + política de privacidad |
 | ¿¿Aguanta si se conectan todos los orientadores?» | 371 req/s con 200 VUs y 0 % de errores | **I-T8, I-T9** |
 | «¿Cómo se mantiene esto?» | 72 tests, integración contra Supabase real, E2E en producción y CI en cada push | **A7** |
-| «¿Dónde está el modelo entrenado? ¿No es de la UPN» | Declarado como proxy en el informe, la interfaz y la política; hay un protocolo de validación con datos propios | **I-E1, I-E2** (tras el piloto) |
+| «¿Dónde está el modelo entrenado? ¿No es de la UPN» | Declarado como proxy en el informe, la interfaz y la política; hay un protocolo de validación con datos propios | **KPI 2 y KPI 3** (tras el piloto) |
 
 ### 1 bis.3 La regla que se sigue en la exposición
 
@@ -99,18 +99,100 @@ Las preguntas del jurado ya son previsibles. Cada una tiene un KPI detrás que l
 | I-O8 | Disponibilidad | (Requests con error 5xx) / (requests totales) | < 0,5 % | Logs de Render |
 | **I-O9** | **Trazabilidad de la evaluación** | (Filas con `entradas` + `modelo_version` + `user_id` + marcas de tiempo completos) / (filas totales) | **100 %** | SQL sobre `evaluaciones` |
 
-### 2.3 Indicadores de resultado (los que responde el problema)
+### 2.3 Indicadores de resultado: los 4 KPI de impacto (definidos por el autor)
 
-| # | Indicador | Fórmula | Meta | Instrumento |
-|---|---|---|---|---|
-| **I-E1** | **Detección temprana** | (Estudiantes detectados por EarlySign antes de solicitar acompañamiento) / (Total de estudiantes quehasilan acompañamiento) | **≥ 50 %** del total de casos, frente a la detección reactiva actual | Ficha de seguimiento (§3.3) |
-| **I-E2** | **Aciertos de la alerta** | (Casos marcados como ALTO que acabado abandonando) / (Casos marcados como ALTO) | ≥ 60 % (con el proxy; la validación local se ajustará) | Ficha de seguimiento |
-| **I-E3** | **Falsos positivos** | (Casos marcados como ALTO que NO abandonaron) / (Casos marcados como ALTO) | ≤ 40 % | Ficha de seguimiento |
-| **I-E4** | **Ahorro de tiempo** | (Tiempo medio de la evaluación con EarlySign) vs (tiempo medio estimado sin el sistema) | Reducción ≥ 30 % | Cuestionario (§3.1) |
-| **I-E5** | **Utilidad percibida** | Media de las respuestas 4-5 en escala Likert del bloque "utilidad" | ≥ 4,0 / 5 | Cuestionario (§3.1) |
-| **I-E6** | **Confianza en la predicción** | Media de las respuestas 4-5 en el bloque "confianza" | ≥ 3,8 / 5 | Cuestionario (§3.1) |
-| **I-E7** | **Usabilidad percibida** | Media del puntaje SUS (System Usability Scale, 10 ítems) | ≥ 72 / 100 | Cuestionario (§3.1) |
-| **I-E8** | **Claridad de la priorización** | % de orientadores que dicen "la lista de riesgo me ayudó a decidir por quién empezar" | ≥ 75 % | Cuestionario (§3.1) |
+Estos son los indicadores que miden si EarlySign **resuelve el problema**: no el rendimiento del
+modelo, sino el efecto real del acompañamiento. Los cuatro se calculan **desde los datos del
+sistema** (`GET /api/v1/kpis/impacto`), no de forma manual.
+
+#### KPI 1 · Tasa de cobertura de intervención
+
+```
+(Estudiantes derivados a Acompanañamiento / Total de estudiantes detectados
+ con alto nivel de riesgo) x 100
+```
+
+> *El modelo predictivo detecta el problema (riesgo de abandono asociado a la variable
+> dependiente). Este KPI mide qué porcentaje de esos alumnos identificados reciben
+> realmente una solución o plan de apoyo por parte del orientador académico.*
+
+- **Fuente**: `evaluaciones` (nivel `ALTO` de la última evaluación de cada DNI) ∩ `intervenciones`.
+- **Implementado en**: `api/services/kpis.py` → `kpi_cobertura_intervencion`.
+- **Endpoint**: `GET /api/v1/kpis/impacto`.
+
+#### KPI 2 · Tasa de variación del nivel de riesgo
+
+```
+(Estudiantes que disminuyeron su nivel de riesgo en una segunda evaluación /
+ Total de estudiantes en riesgo que recibieron Acompanañamiento) x 100
+```
+
+> *Evalúa el impacto directo de la solución. Después de que el estudiante recibe la
+> intervención, el orientador vuelve a correr el modelo en el sistema. Este KPI mide si la
+> variable dependiente (nivel de riesgo) efectivamente bajó tras aplicar la solución.*
+
+- Se compara el **nivel ordinal** (`BAJO` < `MEDIO` < `ALTO`) de la primera y de la última
+  evaluación de cada estudiante con intervención.
+- El informe incluye además la **disminución media de la probabilidad** como detalle.
+- **Implementado en**: `kpi_reduccion_riesgo`.
+
+#### KPI 3 · Índice de resolución de variables modificables
+
+```
+(Variables independientes académicas/psicosociales mejoradas post-intervención /
+ Total de variables en alerta inicial) x 100
+```
+
+> *Se enfoca estrictamente en las variables independientes que la universidad puede ayudar a
+> cambiar. Mide si las acciones correctivas lograron neutralizar los factores específicos
+> que el sistema marcó como problemáticos.*
+
+Variables que entran en el denominador (y su regla de mejora):
+
+| Variable del modelo | Campo del formulario | Mejora cuando |
+|---|---|---|
+| `Curricular units 1st sem (approved)` | `cu1_aprobadas` | sube |
+| `Curricular units 1st sem (grade)` | `cu1_nota` | sube |
+| `Curricular units 2nd sem (approved)` | `cu2_aprobadas` | sube |
+| `Curricular units 2nd sem (grade)` | `cu2_nota` | sube |
+| `Tuition fees up to date` | `matricula_al_dia` | pasa de `No` a `Sí` |
+| `Debtor` | `deudor` | pasa de `Sí` a `No` |
+
+> Quedan **fuera** las variables no modificables por la institución (edad, género, área,
+> desplazado, beca): no son objeto de ninguna acción correctiva, por lo que no pueden formar
+> parte del denominador.
+
+- Las "variables en alerta" de la evaluación inicial se obtienen de la **explicabilidad del
+  modelo** (contribuciones SHAP): se guardan en `evaluaciones.factores_clave` al crear la
+  evaluación.
+- **Implementado en**: `kpi_resolucion_variables`.
+
+#### KPI 4 · Tiempo de respuesta para Acompanañamiento
+
+```
+Sumatoria (Fecha de inicio de intervención - Fecha de evaluación en el sistema) /
+Total de casos en riesgo
+```
+
+> *El sistema busca una identificación temprana. Este KPI mide la agilidad operativa:
+> cuántos días pasan desde que el sistema diagnostica el problema (predicción) hasta que
+> el responsable académico aplica la solución.*
+
+- Se expresa en **días** (valor medio).
+- **Implementado en**: `kpi_tiempo_respuesta`.
+
+#### ¿Cómo se alimentan los KPI?
+
+```
+Formulario de evaluación
+   → POST /api/v1/evaluaciones   (guarda entradas + factores en alerta)
+        → GET  /api/v1/kpis/impacto  (calcula los 4 KPI al vuelo)
+             → Vista /impacto  (4 tarjetas + registro de derivaciones)
+```
+
+Para que los KPI tengan datos hacen falta dos acciones del orientador:
+1. **Evaluar** al estudiante (el sistema guarda la evaluación y sus variables en alerta).
+2. **Registrar la derivación** a Acompanañamiento (con la fecha de inicio de la acción).
 
 ---
 
@@ -294,6 +376,9 @@ Cada afirmación de utilidad se contrasta con **al menos dos** fuentes independi
 | I-O6, I-O8 | ✅ Medidos | `k6` contra la API desplegada |
 | I-O7 | ✅ Verificado | `scripts/verify_supabase.py` |
 | I-O1 a I-O6, I-O8, I-O9 | ⏳ En producción | Se extraerán del uso real y de la base de datos |
-| I-E1 a I-E8 | ⏳ Pendiente de T0/T1 | Instrumentos listos en este documento |
+| **KPI 1** cobertura de intervención | ⏳ Pendiente de uso real | Se calcula solo: `GET /api/v1/kpis/impacto` |
+| **KPI 2** variación del nivel de riesgo | ⏳ Pendiente de uso real | Se calcula solo: reevaluación tras la intervención |
+| **KPI 3** resolución de variables modificables | ⏳ Pendiente de uso real | Se calcula solo: explicabilidad del modelo + segunda evaluación |
+| **KPI 4** tiempo de respuesta | ⏳ Pendiente de uso real | Se calcula solo: fechas de derivación e inicio |
 
 > **Lo que este documento añade al proyecto:** hasta ahora se había demostrado que el software *funciona* y que el modelo *predice*. Con este plan, el proyecto podrá demostrar además que EarlySign *resuelve el problema* para las personas que lo usan, con datos trazables y criterios de decisión explícitos.

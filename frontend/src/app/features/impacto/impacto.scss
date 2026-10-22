@@ -1,0 +1,199 @@
+.cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+
+.intro {
+  font-size: 0.94rem;
+  max-width: 70ch;
+}
+
+.nuevo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+.formulario {
+  margin-bottom: 1.2rem;
+}
+
+.formulario h2 {
+  margin-bottom: 0.2rem;
+}
+
+.sub {
+  font-size: 0.86rem;
+  margin-bottom: 1.1rem;
+}
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+  gap: 0 1rem;
+}
+
+.ancho {
+  grid-column: 1 / -1;
+}
+
+textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radio-sm);
+  font: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  margin-bottom: 0.9rem;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.acciones {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.acciones button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.2rem;
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transition: transform var(--transicion), box-shadow var(--transicion);
+}
+
+.kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.kpi .titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  min-height: 2.4em;
+}
+
+.kpi .valor {
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-family: 'Manrope', sans-serif;
+  line-height: 1.1;
+  color: var(--brand);
+}
+
+.kpi.sin-datos .valor {
+  color: #9aabb4;
+}
+
+.fraccion {
+  font-size: 0.78rem;
+  color: #93a3ac;
+  font-variant-numeric: tabular-nums;
+}
+
+.concepto {
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+  line-height: 1.5;
+}
+
+.kpi details {
+  margin-top: 0.5rem;
+  font-size: 0.76rem;
+}
+
+.kpi summary {
+  cursor: pointer;
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.kpi code {
+  display: block;
+  margin-top: 0.3rem;
+  padding: 0.4rem 0.5rem;
+  background: #f5f8f9;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  color: var(--ink-suave);
+  word-break: break-word;
+}
+
+.nota {
+  font-size: 0.76rem;
+  color: #93a3ac;
+  margin-top: 0.4rem;
+}
+
+.estado {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+}
+
+.estado.derivada {
+  background: #fdf4e6;
+  color: var(--risk-medium);
+}
+
+.estado.proceso {
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+}
+
+.estado.cerrada {
+  background: #eaf5ef;
+  color: var(--risk-low);
+}
+
+.nombre {
+  font-weight: 600;
+}
+
+.acciones select {
+  width: auto;
+  margin-bottom: 0;
+  padding: 0.3rem 0.45rem;
+  font-size: 0.78rem;
+  border-radius: 8px;
+}
+
+.icono-boton {
+  padding: 0.35rem 0.5rem;
+  display: inline-grid;
+  place-items: center;
+  line-height: 0;
+}
+
+.centro {
+  display: flex;
+  justify-content: center;
+  margin-top: -1.2rem;
+}

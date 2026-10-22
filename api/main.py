@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from api.core.config import obtener_config
-from api.routers import auth, dashboard, evaluaciones, predict
+from api.routers import auth, dashboard, evaluaciones, intervenciones, kpis, predict
 from api.services.model import cargar_modelo, informacion_modelo
 from api.services.supabase import estado_supabase
 
@@ -60,6 +60,8 @@ def crear_app() -> FastAPI:
     app.include_router(predict.router)
     app.include_router(evaluaciones.router)
     app.include_router(dashboard.router)
+    app.include_router(intervenciones.router)
+    app.include_router(kpis.router)
 
     @app.get("/health", tags=["sistema"], summary="Estado del servicio")
     def health() -> dict[str, Any]:
@@ -86,6 +88,8 @@ def crear_app() -> FastAPI:
                 "predecir": "POST /api/v1/predict",
                 "evaluaciones": "POST|GET /api/v1/evaluaciones",
                 "panel": "GET /api/v1/dashboard/resumen",
+                "intervenciones": "POST|GET /api/v1/intervenciones",
+                "kpis": "GET /api/v1/kpis/impacto",
             },
         }
 

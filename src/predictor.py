@@ -109,6 +109,14 @@ class TransformadorRapido:
             self.n_cat = sum(len(c) for c in self.categorias)
             self.n_total = self.n_num + self.n_cat
             self.clasificador = pipeline.named_steps["clf"]
+
+            # Mapa: indice de columna transformada -> variable original.
+            # Las numericas conservan su nombre; las one-hot se agregan a su
+            # variable categorica de origen.
+            self.mapa_variables: list[str] = list(num_cols)
+            for col, cats in zip(cat_cols, self.categorias):
+                for _ in cats:
+                    self.mapa_variables.append(col)
             self.disponible = True
         except Exception:  # pragma: no cover - estructura inesperada -> ruta lenta
             self.disponible = False
@@ -128,6 +136,30 @@ class TransformadorRapido:
     def probabilidad(self, fila: Mapping[str, Any]) -> float:
         vector = self.transformar(fila).reshape(1, -1)
         return float(self.clasificador.predict_proba(vector)[0, 1])
+
+    def contribuciones(self, fila: Mapping[str, Any]) -> dict[str, float]:
+        """Contribucion de cada variable original sobre la prediccion.
+
+        Positivo = aumenta el riesgo; negativo = lo reduce. Se usa
+        `pred_contribs` de XGBoost (TreeSHAP), que no requiere la libreria
+        shap en tiempo de ejecucion.
+        """
+        vector = self.transformar(fila).reshape(1, -1)
+        try:
+            import xgboost as xgb
+
+            booster = self.clasificador.get_booster()
+            # En XGBoost 3.x las contribuciones (TreeSHAP) se piden sobre un
+            # DMatrix; `inplace_predict` no admite `pred_contribs`.
+            matriz = xgb.DMatrix(vector)
+            contribs = booster.predict(matriz, pred_contribs=True)[0]
+        except Exception:  # pragma: no cover - booster sin TreeSHAP
+            return {}
+        acumulado: dict[str, float] = {}
+        for i, valor in enumerate(contribs[:-1]):
+            variable = self.mapa_variables[i]
+            acumulado[variable] = acumulado.get(variable, 0.0) + float(valor)
+        return acumulado
 
 
 TRANSFORMADOR_RAPIDO = TransformadorRapido(modelo)
@@ -247,6 +279,36 @@ def predecir_riesgo_abandono(datos_formulario: Mapping[str, Any]) -> tuple[float
     else:
         nivel = "BAJO"
     return probabilidad, nivel
+
+
+def explicar_riesgo(datos_formulario: Mapping[str, Any], top: int = 5) -> dict[str, Any]:
+    """Explica la prediccion: variables que mas influyen y en que direccion.
+
+    Devuelve los factores ordenados por contribucion absoluta. Se usan para
+    (a) mostrar al orientador por que se marca al estudiante y (b) calcular el
+    KPI de indice de resolucion de variables modificables.
+    """
+    fila = construir_valores(datos_formulario)
+    if not TRANSFORMADOR_RAPIDO.disponible:
+        return {"factores": []}
+    contribuciones = TRANSFORMADOR_RAPIDO.contribuciones(fila)
+    if not contribuciones:
+        return {"factores": []}
+
+    factores = []
+    for variable, contribucion in contribuciones.items():
+        factores.append(
+            {
+                "variable": variable,
+                "contribucion": round(contribucion, 5),
+                "direccion": "aumenta_riesgo" if contribucion > 0 else "reduce_riesgo",
+                "valor": fila.get(variable),
+            }
+        )
+    factores.sort(key=lambda f: abs(f["contribucion"]), reverse=True)
+    return {"factores": factores[:top], "variables_en_alerta": [
+        f["variable"] for f in factores if f["contribucion"] > 0
+    ]}
 
 
 def explicar(datos_formulario: Mapping[str, Any]) -> dict[str, Any]:

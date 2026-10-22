@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Estudiante, Evaluacion, Prediccion, Resumen } from './models';
+import { Estudiante, Evaluacion, Intervencion, KpiInforme, Prediccion, Resumen } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -28,7 +28,9 @@ export class ApiService {
     if (params.nivel) {
       httpParams = httpParams.set('nivel', params.nivel);
     }
-    return firstValueFrom(this.http.get<{ total: number; datos: Evaluacion[] }>(`${this.base}/evaluaciones`, { params: httpParams }));
+    return firstValueFrom(
+      this.http.get<{ total: number; datos: Evaluacion[] }>(`${this.base}/evaluaciones`, { params: httpParams }),
+    );
   }
 
   actualizarEvaluacion(id: number, cambios: Partial<Evaluacion>): Promise<Evaluacion> {
@@ -41,5 +43,35 @@ export class ApiService {
 
   resumen(): Promise<Resumen> {
     return firstValueFrom(this.http.get<Resumen>(`${this.base}/dashboard/resumen`));
+  }
+
+  // --- Intervenciones de acompanamiento ---------------------------------
+  listarIntervenciones(params: { limite?: number; dni?: string } = {}): Promise<{
+    total: number;
+    datos: Intervencion[];
+  }> {
+    let httpParams = new HttpParams().set('limite', params.limite ?? 100);
+    if (params.dni) {
+      httpParams = httpParams.set('dni', params.dni);
+    }
+    return firstValueFrom(
+      this.http.get<{ total: number; datos: Intervencion[] }>(`${this.base}/intervenciones`, { params: httpParams }),
+    );
+  }
+
+  crearIntervencion(intervencion: Partial<Intervencion>): Promise<Intervencion> {
+    return firstValueFrom(this.http.post<Intervencion>(`${this.base}/intervenciones`, intervencion));
+  }
+
+  actualizarIntervencion(id: number, cambios: Partial<Intervencion>): Promise<Intervencion> {
+    return firstValueFrom(this.http.patch<Intervencion>(`${this.base}/intervenciones/${id}`, cambios));
+  }
+
+  eliminarIntervencion(id: number): Promise<{ eliminado: boolean }> {
+    return firstValueFrom(this.http.delete<{ eliminado: boolean }>(`${this.base}/intervenciones/${id}`));
+  }
+
+  kpisImpacto(): Promise<KpiInforme> {
+    return firstValueFrom(this.http.get<KpiInforme>(`${this.base}/kpis/impacto`));
   }
 }

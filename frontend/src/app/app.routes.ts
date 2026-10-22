@@ -4,6 +4,7 @@ import { Login } from './features/login/login';
 import { Dashboard } from './features/dashboard/dashboard';
 import { Evaluar } from './features/evaluar/evaluar';
 import { Historial } from './features/historial/historial';
+import { Impacto } from './features/impacto/impacto';
 import { Privacidad } from './features/privacidad/privacidad';
 import { Shell } from './shared/shell';
 
@@ -19,6 +20,7 @@ export const routes: Routes = [
       { path: 'panel', component: Dashboard, title: 'Panel · EarlySign' },
       { path: 'evaluar', component: Evaluar, title: 'Evaluar estudiante · EarlySign' },
       { path: 'historial', component: Historial, title: 'Historial · EarlySign' },
+      { path: 'impacto', component: Impacto, title: 'Impacto · EarlySign' },
     ],
   },
   { path: '**', redirectTo: '' },
